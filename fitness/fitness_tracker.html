@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .message {
+            transition: opacity 0.5s ease-in-out;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4 md:p-8">
+
+    <div class="max-w-xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-cyan-400">Fitness Tracker</h1>
+            <p class="text-gray-400">Log your exercises and track your fitness progress.</p>
+        </header>
+
+        <main>
+            <div id="message-container" class="mb-4"></div>
+
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+                <form id="workout-form">
+                    <div class="mb-4">
+                        <label for="exercise-name" class="block text-sm font-medium text-gray-300 mb-2">Exercise Name</label>
+                        <input type="text" id="exercise-name" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-cyan-500 focus:outline-none" placeholder="e.g., Bench Press" required>
+                    </div>
+
+                    <div class="flex items-center justify-center mb-4 bg-gray-700 rounded-lg p-1">
+                         <button type="button" id="toggle-weight-reps" class="flex-1 text-sm py-2 px-4 rounded-md bg-cyan-600 text-white">Weight & Reps</button>
+                         <button type="button" id="toggle-time-load" class="flex-1 text-sm py-2 px-4 rounded-md text-gray-300">Time & Load</button>
+                    </div>
+
+
+                    <div id="weight-reps-inputs">
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label for="sets" class="block text-sm font-medium text-gray-300 mb-2">Sets</label>
+                                <input type="number" id="sets" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2" placeholder="3">
+                            </div>
+                            <div>
+                                <label for="reps" class="block text-sm font-medium text-gray-300 mb-2">Reps</label>
+                                <input type="number" id="reps" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2" placeholder="10">
+                            </div>
+                            <div>
+                                <label for="weight" class="block text-sm font-medium text-gray-300 mb-2">Weight (kg)</label>
+                                <input type="number" step="0.5" id="weight" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2" placeholder="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="time-load-inputs" class="hidden">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="duration" class="block text-sm font-medium text-gray-300 mb-2">Duration (s)</label>
+                                <input type="number" id="duration" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2" placeholder="60">
+                            </div>
+                            <div>
+                                <label for="load" class="block text-sm font-medium text-gray-300 mb-2">Load (kg)</label>
+                                <input type="number" step="0.5" id="load" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2" placeholder="20">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                        Log Exercise
+                    </button>
+                </form>
+            </div>
+
+            <div id="history-container">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-cyan-400">Fitness History</h2>
+                     <div class="flex items-center space-x-2">
+                        <button id="sync-history" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">Sync to Sheet</button>
+                        <button id="clear-all" class="text-sm bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">Clear All</button>
+                     </div>
+                </div>
+                <div id="workout-history" class="space-y-4">
+                    <!-- History items will be injected here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // IMPORTANT: This is your unique Google Apps Script URL.
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwdmIXCe7LxXyR7zmbbjRoPU71pA1PZczpnso6BHobZ-RDpiiZvAKrbdU2myVtSjmjW9A/exec';
+
+            const workoutForm = document.getElementById('workout-form');
+            const exerciseTypeToggle = {
+                weightReps: document.getElementById('toggle-weight-reps'),
+                timeLoad: document.getElementById('toggle-time-load'),
+            };
+            const weightRepsInputs = document.getElementById('weight-reps-inputs');
+            const timeLoadInputs = document.getElementById('time-load-inputs');
+            const workoutHistory = document.getElementById('workout-history');
+            const clearAllButton = document.getElementById('clear-all');
+            const syncHistoryButton = document.getElementById('sync-history');
+            const messageContainer = document.getElementById('message-container');
+
+            let currentExerciseType = 'weight-reps';
+            let workouts = JSON.parse(localStorage.getItem('workouts')) || [];
+
+            // --- UI Functions ---
+
+            const showMessage = (text, type = 'error') => {
+                const colorClass = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+                const messageEl = document.createElement('div');
+                messageEl.className = `message p-3 rounded-lg text-white text-center opacity-0 ${colorClass}`;
+                messageEl.textContent = text;
+                messageContainer.innerHTML = '';
+                messageContainer.appendChild(messageEl);
+                
+                setTimeout(() => messageEl.classList.remove('opacity-0'), 10); // Fade in
+                setTimeout(() => {
+                    messageEl.classList.add('opacity-0');
+                    setTimeout(() => messageContainer.innerHTML = '', 500); // Remove after fade out
+                }, 4000);
+            };
+
+            const toggleInputs = (type) => {
+                currentExerciseType = type;
+                if (type === 'weight-reps') {
+                    weightRepsInputs.classList.remove('hidden');
+                    timeLoadInputs.classList.add('hidden');
+                    exerciseTypeToggle.weightReps.classList.add('bg-cyan-600', 'text-white');
+                    exerciseTypeToggle.weightReps.classList.remove('text-gray-300');
+                    exerciseTypeToggle.timeLoad.classList.remove('bg-cyan-600', 'text-white');
+                    exerciseTypeToggle.timeLoad.classList.add('text-gray-300');
+                } else {
+                    weightRepsInputs.classList.add('hidden');
+                    timeLoadInputs.classList.remove('hidden');
+                    exerciseTypeToggle.timeLoad.classList.add('bg-cyan-600', 'text-white');
+                    exerciseTypeToggle.timeLoad.classList.remove('text-gray-300');
+                    exerciseTypeToggle.weightReps.classList.remove('bg-cyan-600', 'text-white');
+                    exerciseTypeToggle.weightReps.classList.add('text-gray-300');
+                }
+            };
+
+            const renderHistory = () => {
+                workoutHistory.innerHTML = '';
+                if (workouts.length === 0) {
+                    workoutHistory.innerHTML = '<p class="text-gray-500 text-center">No fitness activities logged yet.</p>';
+                    return;
+                }
+                // We show the history in chronological order, so we reverse a copy of the array.
+                [...workouts].reverse().forEach(workout => {
+                    const el = document.createElement('div');
+                    el.className = 'bg-gray-800 p-4 rounded-lg shadow-md animate-fade-in';
+                    el.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-lg text-cyan-300">${workout.name}</h3>
+                                <p class="text-gray-300">${workout.details}</p>
+                            </div>
+                            <span class="text-xs text-gray-500">${new Date(workout.timestamp).toLocaleString()}</span>
+                        </div>
+                    `;
+                    workoutHistory.insertBefore(el, workoutHistory.firstChild);
+                });
+            };
+            
+            // --- Data Functions ---
+
+            const saveWorkouts = () => {
+                localStorage.setItem('workouts', JSON.stringify(workouts));
+            };
+            
+            const sendToGoogleSheets = (workout) => {
+                return fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(workout),
+                });
+            };
+
+            // --- Event Listeners ---
+
+            exerciseTypeToggle.weightReps.addEventListener('click', () => toggleInputs('weight-reps'));
+            exerciseTypeToggle.timeLoad.addEventListener('click', () => toggleInputs('time-load'));
+
+            workoutForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const exerciseName = document.getElementById('exercise-name').value;
+                if (!exerciseName.trim()) {
+                    showMessage("Please enter an exercise name.");
+                    return;
+                }
+
+                const workout = {
+                    id: Date.now(),
+                    timestamp: Date.now(),
+                    name: exerciseName,
+                    type: currentExerciseType,
+                };
+
+                if (currentExerciseType === 'time-load') {
+                    const duration = document.getElementById('duration').value;
+                    const load = document.getElementById('load').value;
+                    if (!duration) { 
+                        showMessage("Please enter a duration.");
+                        return; 
+                    }
+                    workout.details = `${duration}s` + (load ? ` @ ${load}kg` : ' (Bodyweight)');
+                    workout.duration = duration;
+                    workout.load = load || 0;
+                } else {
+                    const sets = document.getElementById('sets').value;
+                    const reps = document.getElementById('reps').value;
+                    const weight = document.getElementById('weight').value;
+                    if (!sets || !reps) { 
+                        showMessage("Please fill in at least sets and reps.");
+                        return; 
+                    }
+                    workout.details = `${sets} sets x ${reps} reps` + (weight ? ` @ ${weight}kg` : ' (Bodyweight)');
+                    workout.sets = sets;
+                    workout.reps = reps;
+                    workout.weight = weight || 0;
+                }
+
+                workouts.push(workout); // Add to the end of the array
+                sendToGoogleSheets(workout)
+                    .then(() => console.log('Single log sent.'))
+                    .catch(err => console.error('Failed to send single log:', err));
+                saveWorkouts();
+                renderHistory();
+                workoutForm.reset();
+                showMessage("Exercise logged successfully!", 'success');
+            });
+
+            clearAllButton.addEventListener('click', () => {
+                 const messageEl = document.createElement('div');
+                 messageEl.className = 'p-4 rounded-lg bg-gray-700 text-center';
+                 messageEl.innerHTML = `
+                    <p class="mb-4">Are you sure you want to clear all history? This cannot be undone.</p>
+                    <button id="confirm-clear" class="bg-red-600 text-white py-2 px-4 rounded-lg mr-2">Yes, Clear</button>
+                    <button id="cancel-clear" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                 `;
+                 messageContainer.innerHTML = '';
+                 messageContainer.appendChild(messageEl);
+
+                 document.getElementById('confirm-clear').addEventListener('click', () => {
+                     workouts = [];
+                     saveWorkouts();
+                     renderHistory();
+                     messageContainer.innerHTML = '';
+                     showMessage("History cleared.", 'success');
+                 });
+
+                 document.getElementById('cancel-clear').addEventListener('click', () => {
+                     messageContainer.innerHTML = '';
+                 });
+            });
+            
+            syncHistoryButton.addEventListener('click', async () => {
+                if(workouts.length === 0){
+                    showMessage("No history to sync.", "error");
+                    return;
+                }
+
+                showMessage("Syncing history to Google Sheet...", "success");
+                syncHistoryButton.disabled = true;
+                syncHistoryButton.textContent = "Syncing...";
+
+                // Create a series of promises for each fetch call
+                const syncPromises = workouts.map(workout => sendToGoogleSheets(workout));
+                
+                try {
+                    await Promise.all(syncPromises);
+                    showMessage("Sync complete! All history has been sent to your Google Sheet.", "success");
+                } catch (error) {
+                    console.error('An error occurred during sync:', error);
+                    showMessage("An error occurred during sync. Please try again.", "error");
+                } finally {
+                    syncHistoryButton.disabled = false;
+                    syncHistoryButton.textContent = "Sync to Sheet";
+                }
+            });
+
+            // Initial render
+            renderHistory();
+        });
+    </script>
+</body>
+</html>
+
