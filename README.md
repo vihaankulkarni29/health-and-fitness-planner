@@ -78,7 +78,11 @@ function doPost(e) {
    - Execute as "Me", access "Anyone"
    - Copy the deployment URL
 
-5. Update the `GOOGLE_SCRIPT_URL` in both HTML files with your deployment URL
+5. **For Food Tracker**: Deploy `food_script.js` to get your Food Tracker script URL
+6. **For Fitness Tracker**: Deploy `fitness_script.js` to get your Fitness Tracker script URL
+7. Update the `GOOGLE_SCRIPT_URL` in each HTML file with their respective deployment URLs:
+   - `food/food_tracker.html` → Food Tracker script URL
+   - `fitness/fitness_tracker.html` → Fitness Tracker script URL
 
 ### 2. Running the Applications
 
