@@ -78,13 +78,8 @@
                     <div class="mb-4">
                         <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Metric Type</label>
                         <select id="metric-type" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
-                            <option value="">Select a food category</option>
-                            <option value="breakfast">Breakfast</option>
-                            <option value="lunch">Lunch</option>
-                            <option value="dinner">Dinner</option>
-                            <option value="snacks">Snacks</option>
-                            <option value="beverages">Beverages</option>
-                            <option value="supplements">Supplements</option>
+                            <option value="">Select logging method</option>
+                            <option value="simple">Simple Food Entry</option>
                             <option value="recipe">Recipe Calculator</option>
                         </select>
                     </div>
@@ -94,7 +89,7 @@
                     </div>
 
                     <button type="submit" class="w-full btn-primary font-medium py-3 px-4 rounded-md">
-                        Log Food
+                        <span id="submit-text">Log Food</span>
                     </button>
 
                     <div id="nutrition-preview" class="mt-6 p-6 bg-gray-50 border border-gray-200 rounded-lg hidden">
@@ -108,7 +103,7 @@
 
             <div id="history-container" class="max-w-4xl mx-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-medium text-gray-900">Food History</h2>
+                    <h2 class="text-xl font-medium text-gray-900">Food Log</h2>
                      <div class="flex items-center space-x-3">
                         <button id="sync-history" class="btn-secondary text-sm py-2 px-4 rounded-md">Sync to Sheet</button>
                         <button id="clear-all" class="btn-secondary text-sm py-2 px-4 rounded-md text-red-600 hover:text-red-700">Clear All</button>
@@ -160,35 +155,10 @@
                 if (!selectedMetric) return;
 
                 const inputConfigs = {
-                    'breakfast': [
-                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Oatmeal with fruits' },
+                    'simple': [
+                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Chicken breast' },
                         { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '100' },
-                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '150' }
-                    ],
-                    'lunch': [
-                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Chicken salad' },
-                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '200' },
-                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '350' }
-                    ],
-                    'dinner': [
-                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Grilled fish with veggies' },
-                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '250' },
-                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '400' }
-                    ],
-                    'snacks': [
-                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Apple' },
-                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '150' },
-                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '80' }
-                    ],
-                    'beverages': [
-                        { label: 'Beverage', type: 'text', id: 'food-item', placeholder: 'e.g., Green tea' },
-                        { label: 'Quantity (ml)', type: 'number', step: '1', id: 'quantity', placeholder: '250' },
-                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '0' }
-                    ],
-                    'supplements': [
-                        { label: 'Supplement Name', type: 'text', id: 'food-item', placeholder: 'e.g., Vitamin D3' },
-                        { label: 'Dosage', type: 'text', id: 'quantity', placeholder: '1000 IU' },
-                        { label: 'Notes', type: 'text', id: 'calories', placeholder: 'Optional notes' }
+                        { label: 'Calories (optional)', type: 'number', id: 'calories', placeholder: '165', required: false }
                     ],
                     'recipe': [
                         { label: 'Recipe Name', type: 'text', id: 'recipe-name', placeholder: 'e.g., Chicken Curry' },
@@ -278,7 +248,7 @@
             const renderHistory = () => {
                 healthHistory.innerHTML = '';
                 if (healthLogs.length === 0) {
-                    healthHistory.innerHTML = '<p class="text-gray-500 text-center py-8">No food items logged yet.</p>';
+                    healthHistory.innerHTML = '<p class="text-gray-500 text-center py-8">No food logged yet.</p>';
                     return;
                 }
                 // We show the history in chronological order, so we reverse a copy of the array.
@@ -370,6 +340,7 @@
                         details = `${recipeName} (${servingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
                     }
                 } else {
+                    // Simple food entry
                     const foodItem = document.getElementById('food-item').value;
                     const quantity = document.getElementById('quantity').value;
                     const calories = document.getElementById('calories').value;
@@ -381,20 +352,7 @@
                         log.quantity = quantity;
                         log.calories = calories || '0';
 
-                        switch (metricType) {
-                            case 'breakfast':
-                            case 'lunch':
-                            case 'dinner':
-                            case 'snacks':
-                                details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
-                                break;
-                            case 'beverages':
-                                details = `${foodItem} - ${quantity}ml - ${calories || 0} cal`;
-                                break;
-                            case 'supplements':
-                                details = `${foodItem} - ${quantity} - ${calories || 'No notes'}`;
-                                break;
-                        }
+                        details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
                     }
                 }
 
@@ -415,7 +373,7 @@
                 if (metricType === 'recipe') {
                     showMessage("Recipe logged successfully!", 'success');
                 } else {
-                    showMessage("Food item logged successfully!", 'success');
+                    showMessage("Food logged successfully!", 'success');
                 }
             });
 
@@ -445,7 +403,7 @@
 
             syncHistoryButton.addEventListener('click', async () => {
                 if(healthLogs.length === 0){
-                    showMessage("No food history to sync.", "error");
+                    showMessage("No food log to sync.", "error");
                     return;
                 }
 
