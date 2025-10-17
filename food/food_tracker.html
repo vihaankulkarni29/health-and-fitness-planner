@@ -333,28 +333,57 @@
             };
 
             const updateNutritionPreview = () => {
-                const ingredientsText = document.getElementById('ingredients-list')?.value || '';
-                const servingSize = parseFloat(document.getElementById('serving-size')?.value) || 100;
+                const metricType = metricTypeSelect.value;
 
-                if (!ingredientsText.trim()) {
-                    document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-500">Enter ingredients to see nutrition preview</p>';
-                    return;
+                if (metricType === 'individual') {
+                    const selectedFood = document.getElementById('individual-food-select')?.value;
+                    const quantity = parseFloat(document.getElementById('individual-quantity')?.value) || 0;
+
+                    if (!selectedFood || quantity <= 0) {
+                        document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-500">Select food and enter quantity to see nutrition</p>';
+                        return;
+                    }
+
+                    const nutrition = calculateNutrition(selectedFood, quantity);
+                    if (!nutrition) {
+                        document.getElementById('nutrition-details').innerHTML = '<p class="text-red-500">Nutrition data not found for this food</p>';
+                        return;
+                    }
+
+                    document.getElementById('nutrition-details').innerHTML = `
+                        <div class="col-span-2 text-gray-700 font-medium mb-3">For ${quantity}g ${selectedFood.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</div>
+                        <div class="text-gray-600">Calories: <span class="font-medium text-gray-900">${nutrition.calories}</span></div>
+                        <div class="text-gray-600">Protein: <span class="font-medium text-gray-900">${nutrition.protein}g</span></div>
+                        <div class="text-gray-600">Carbs: <span class="font-medium text-gray-900">${nutrition.carbs}g</span></div>
+                        <div class="text-gray-600">Fat: <span class="font-medium text-gray-900">${nutrition.fat}g</span></div>
+                        <div class="text-gray-600">Fiber: <span class="font-medium text-gray-900">${nutrition.fiber}g</span></div>
+                    `;
+                } else if (metricType === 'recipe') {
+                    const ingredientsText = document.getElementById('ingredients-list')?.value || '';
+                    const servingSize = parseFloat(document.getElementById('serving-size')?.value) || 100;
+
+                    if (!ingredientsText.trim()) {
+                        document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-500">Enter ingredients to see nutrition preview</p>';
+                        return;
+                    }
+
+                    const ingredients = parseIngredients(ingredientsText);
+                    const totalNutrition = calculateRecipeNutrition(ingredients);
+
+                    // Calculate per serving
+                    const servingMultiplier = servingSize / getTotalRecipeWeight(ingredients);
+
+                    document.getElementById('nutrition-details').innerHTML = `
+                        <div class="col-span-2 text-gray-700 font-medium mb-3">Per ${servingSize}g serving:</div>
+                        <div class="text-gray-600">Calories: <span class="font-medium text-gray-900">${Math.round(totalNutrition.calories * servingMultiplier)}</span></div>
+                        <div class="text-gray-600">Protein: <span class="font-medium text-gray-900">${Math.round(totalNutrition.protein * servingMultiplier * 10) / 10}g</span></div>
+                        <div class="text-gray-600">Carbs: <span class="font-medium text-gray-900">${Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10}g</span></div>
+                        <div class="text-gray-600">Fat: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fat * servingMultiplier * 10) / 10}g</span></div>
+                        <div class="text-gray-600">Fiber: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10}g</span></div>
+                    `;
+                } else {
+                    document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-500">Select a logging method to see nutrition preview</p>';
                 }
-
-                const ingredients = parseIngredients(ingredientsText);
-                const totalNutrition = calculateRecipeNutrition(ingredients);
-
-                // Calculate per serving
-                const servingMultiplier = servingSize / getTotalRecipeWeight(ingredients);
-
-                document.getElementById('nutrition-details').innerHTML = `
-                    <div class="col-span-2 text-gray-700 font-medium mb-3">Per ${servingSize}g serving:</div>
-                    <div class="text-gray-600">Calories: <span class="font-medium text-gray-900">${Math.round(totalNutrition.calories * servingMultiplier)}</span></div>
-                    <div class="text-gray-600">Protein: <span class="font-medium text-gray-900">${Math.round(totalNutrition.protein * servingMultiplier * 10) / 10}g</span></div>
-                    <div class="text-gray-600">Carbs: <span class="font-medium text-gray-900">${Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10}g</span></div>
-                    <div class="text-gray-600">Fat: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fat * servingMultiplier * 10) / 10}g</span></div>
-                    <div class="text-gray-600">Fiber: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10}g</span></div>
-                `;
             };
 
             const parseIngredients = (text) => {
@@ -440,9 +469,15 @@
 
             metricTypeSelect.addEventListener('change', updateInputs);
 
-            // Add event listener for recipe ingredients textarea
+            // Add event listeners for nutrition preview updates
             document.addEventListener('input', (e) => {
-                if (e.target.id === 'ingredients-list') {
+                if (e.target.id === 'ingredients-list' || e.target.id === 'individual-quantity' || e.target.id === 'individual-food-select') {
+                    updateNutritionPreview();
+                }
+            });
+
+            document.addEventListener('change', (e) => {
+                if (e.target.id === 'individual-food-select' || e.target.id === 'metric-type') {
                     updateNutritionPreview();
                 }
             });
