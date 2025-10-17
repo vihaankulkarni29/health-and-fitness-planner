@@ -105,6 +105,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-medium text-gray-900">Food Log</h2>
                      <div class="flex items-center space-x-3">
+                        <button id="export-data" class="btn-secondary text-sm py-2 px-4 rounded-md">Export Data</button>
                         <button id="sync-history" class="btn-secondary text-sm py-2 px-4 rounded-md">Sync to Sheet</button>
                         <button id="clear-all" class="btn-secondary text-sm py-2 px-4 rounded-md text-red-600 hover:text-red-700">Clear All</button>
                      </div>
@@ -129,7 +130,37 @@
             const syncHistoryButton = document.getElementById('sync-history');
             const messageContainer = document.getElementById('message-container');
 
-            let healthLogs = JSON.parse(localStorage.getItem('healthLogs')) || [];
+            // Load and validate stored data
+            let healthLogs = [];
+            try {
+                const storedData = localStorage.getItem('healthLogs');
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData);
+                    // Validate data structure
+                    if (Array.isArray(parsedData)) {
+                        healthLogs = parsedData.filter(log =>
+                            log && typeof log === 'object' &&
+                            log.id && log.timestamp && log.metricType && log.details
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stored data:', error);
+                showMessage("Error loading saved data. Starting fresh.", "error");
+                healthLogs = [];
+            }
+
+            // --- Utility Functions ---
+
+            const sanitizeInput = (input) => {
+                if (typeof input !== 'string') return '';
+                return input.trim().replace(/[<>]/g, '').substring(0, 200); // Max 200 chars, remove HTML tags
+            };
+
+            const validateNumber = (value, min = 0, max = 10000) => {
+                const num = parseFloat(value);
+                return !isNaN(num) && num >= min && num <= max;
+            };
 
             // --- UI Functions ---
 
@@ -271,7 +302,20 @@
             // --- Data Functions ---
 
             const saveHealthLogs = () => {
-                localStorage.setItem('healthLogs', JSON.stringify(healthLogs));
+                try {
+                    const dataToSave = JSON.stringify(healthLogs);
+                    // Check data size (localStorage limit is ~5MB)
+                    if (dataToSave.length > 4 * 1024 * 1024) { // 4MB limit
+                        showMessage("Data size limit reached. Please clear some old entries.", "error");
+                        return false;
+                    }
+                    localStorage.setItem('healthLogs', dataToSave);
+                    return true;
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                    showMessage("Error saving data locally.", "error");
+                    return false;
+                }
             };
 
             const sendToGoogleSheets = (log) => {
@@ -301,10 +345,11 @@
                 e.preventDefault();
                 const metricType = metricTypeSelect.value;
                 if (!metricType) {
-                    showMessage("Please select a metric type.");
+                    showMessage("Please select a logging method.");
                     return;
                 }
 
+                // Input validation and sanitization
                 const log = {
                     id: Date.now(),
                     timestamp: Date.now(),
@@ -313,92 +358,191 @@
 
                 let details = '';
                 let isValid = true;
+                let validationErrors = [];
 
                 if (metricType === 'recipe') {
-                    const recipeName = document.getElementById('recipe-name').value;
-                    const ingredientsText = document.getElementById('ingredients-list').value;
-                    const servingSize = document.getElementById('serving-size').value;
+                    const recipeName = sanitizeInput(document.getElementById('recipe-name').value);
+                    const ingredientsText = document.getElementById('ingredients-list').value.trim();
+                    const servingSize = parseFloat(document.getElementById('serving-size').value);
 
-                    if (!recipeName.trim() || !ingredientsText.trim() || !servingSize) {
+                    if (!recipeName || recipeName.length < 2) {
+                        validationErrors.push("Recipe name must be at least 2 characters");
                         isValid = false;
-                    } else {
+                    }
+                    if (!ingredientsText) {
+                        validationErrors.push("Please enter ingredients");
+                        isValid = false;
+                    }
+                    if (!servingSize || servingSize <= 0 || servingSize > 5000) {
+                        validationErrors.push("Serving size must be between 1-5000g");
+                        isValid = false;
+                    }
+
+                    if (isValid) {
                         const ingredients = parseIngredients(ingredientsText);
-                        const totalNutrition = calculateRecipeNutrition(ingredients);
-                        const servingMultiplier = parseFloat(servingSize) / getTotalRecipeWeight(ingredients);
+                        if (ingredients.length === 0) {
+                            validationErrors.push("No valid ingredients found");
+                            isValid = false;
+                        } else {
+                            const totalNutrition = calculateRecipeNutrition(ingredients);
+                            const totalWeight = getTotalRecipeWeight(ingredients);
 
-                        log.recipeName = recipeName;
-                        log.ingredients = ingredients;
-                        log.servingSize = servingSize;
-                        log.nutrition = {
-                            calories: Math.round(totalNutrition.calories * servingMultiplier),
-                            protein: Math.round(totalNutrition.protein * servingMultiplier * 10) / 10,
-                            carbs: Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10,
-                            fat: Math.round(totalNutrition.fat * servingMultiplier * 10) / 10,
-                            fiber: Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10
-                        };
+                            if (totalWeight === 0) {
+                                validationErrors.push("Invalid ingredient quantities");
+                                isValid = false;
+                            } else {
+                                const servingMultiplier = servingSize / totalWeight;
 
-                        details = `${recipeName} (${servingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
+                                log.recipeName = recipeName;
+                                log.ingredients = ingredients;
+                                log.servingSize = servingSize;
+                                log.nutrition = {
+                                    calories: Math.max(0, Math.round(totalNutrition.calories * servingMultiplier)),
+                                    protein: Math.max(0, Math.round(totalNutrition.protein * servingMultiplier * 10) / 10),
+                                    carbs: Math.max(0, Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10),
+                                    fat: Math.max(0, Math.round(totalNutrition.fat * servingMultiplier * 10) / 10),
+                                    fiber: Math.max(0, Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10)
+                                };
+
+                                details = `${recipeName} (${servingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
+                            }
+                        }
                     }
                 } else {
                     // Simple food entry
-                    const foodItem = document.getElementById('food-item').value;
-                    const quantity = document.getElementById('quantity').value;
-                    const calories = document.getElementById('calories').value;
+                    const foodItem = sanitizeInput(document.getElementById('food-item').value);
+                    const quantity = parseFloat(document.getElementById('quantity').value);
+                    const calories = document.getElementById('calories').value ? parseInt(document.getElementById('calories').value) : null;
 
-                    if (!foodItem.trim() || !quantity) {
+                    if (!foodItem || foodItem.length < 2) {
+                        validationErrors.push("Food name must be at least 2 characters");
                         isValid = false;
-                    } else {
+                    }
+                    if (!quantity || quantity <= 0 || quantity > 10000) {
+                        validationErrors.push("Quantity must be between 1-10000g/ml");
+                        isValid = false;
+                    }
+                    if (calories !== null && (calories < 0 || calories > 5000)) {
+                        validationErrors.push("Calories must be between 0-5000");
+                        isValid = false;
+                    }
+
+                    if (isValid) {
                         log.foodItem = foodItem;
                         log.quantity = quantity;
-                        log.calories = calories || '0';
+                        log.calories = calories || 0;
 
                         details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
                     }
                 }
 
                 if (!isValid) {
-                    showMessage("Please fill in all required fields.");
+                    const errorMessage = validationErrors.length > 0 ? validationErrors.join('. ') : "Please fill in all required fields correctly.";
+                    showMessage(errorMessage);
+                    return;
+                }
+
+                // Data integrity check
+                if (!log.id || !log.timestamp || !log.metricType) {
+                    showMessage("Data integrity error. Please try again.");
                     return;
                 }
 
                 log.details = details;
-                healthLogs.push(log);
-                sendToGoogleSheets(log)
-                    .then(() => console.log('Food log sent.'))
-                    .catch(err => console.error('Failed to send food log:', err));
-                saveHealthLogs();
-                renderHistory();
-                healthForm.reset();
-                inputContainer.innerHTML = '';
-                if (metricType === 'recipe') {
-                    showMessage("Recipe logged successfully!", 'success');
-                } else {
+
+                // Save with error handling
+                try {
+                    healthLogs.push(log);
+                    saveHealthLogs();
+
+                    // Send to Google Sheets with retry logic
+                    sendToGoogleSheets(log)
+                        .then(() => console.log('Food log sent successfully.'))
+                        .catch(err => {
+                            console.error('Failed to send food log:', err);
+                            // Don't show error to user as data is saved locally
+                        });
+
+                    renderHistory();
+                    healthForm.reset();
+                    inputContainer.innerHTML = '';
+                    metricTypeSelect.value = '';
                     showMessage("Food logged successfully!", 'success');
+                } catch (error) {
+                    console.error('Error saving food log:', error);
+                    showMessage("Error saving data. Please try again.");
                 }
             });
 
             clearAllButton.addEventListener('click', () => {
-                 const messageEl = document.createElement('div');
-                 messageEl.className = 'p-6 rounded-lg bg-white border border-gray-200 text-center';
-                 messageEl.innerHTML = `
-                    <p class="mb-4">Are you sure you want to clear all history? This cannot be undone.</p>
-                    <button id="confirm-clear" class="btn-primary py-2 px-4 rounded-md mr-3">Yes, Clear</button>
-                    <button id="cancel-clear" class="btn-secondary py-2 px-4 rounded-md">Cancel</button>
-                 `;
-                 messageContainer.innerHTML = '';
-                 messageContainer.appendChild(messageEl);
+                // Confirmation dialog for critical action
+                if (healthLogs.length === 0) {
+                    showMessage("No data to clear.", "error");
+                    return;
+                }
 
-                 document.getElementById('confirm-clear').addEventListener('click', () => {
-                     healthLogs = [];
-                     saveHealthLogs();
-                     renderHistory();
-                     messageContainer.innerHTML = '';
-                     showMessage("History cleared.", 'success');
-                 });
+                const messageEl = document.createElement('div');
+                messageEl.className = 'p-6 rounded-lg bg-white border border-gray-200 text-center';
+                messageEl.innerHTML = `
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Clear All Data</h3>
+                        <p class="text-gray-600">Are you sure you want to clear all ${healthLogs.length} food log${healthLogs.length !== 1 ? 's' : ''}? This action cannot be undone.</p>
+                    </div>
+                    <div class="flex justify-center space-x-3">
+                        <button id="confirm-clear" class="btn-secondary py-2 px-4 rounded-md text-red-600 hover:text-red-700">Yes, Clear All</button>
+                        <button id="cancel-clear" class="btn-primary py-2 px-4 rounded-md">Cancel</button>
+                    </div>
+                `;
+                messageContainer.innerHTML = '';
+                messageContainer.appendChild(messageEl);
 
-                 document.getElementById('cancel-clear').addEventListener('click', () => {
-                     messageContainer.innerHTML = '';
-                 });
+                document.getElementById('confirm-clear').addEventListener('click', () => {
+                    try {
+                        healthLogs = [];
+                        saveHealthLogs();
+                        renderHistory();
+                        messageContainer.innerHTML = '';
+                        showMessage("All data cleared successfully.", 'success');
+                    } catch (error) {
+                        console.error('Error clearing data:', error);
+                        showMessage("Error clearing data. Please try again.");
+                    }
+                });
+
+                document.getElementById('cancel-clear').addEventListener('click', () => {
+                    messageContainer.innerHTML = '';
+                });
+            });
+
+            // Export data functionality
+            document.getElementById('export-data').addEventListener('click', () => {
+                if (healthLogs.length === 0) {
+                    showMessage("No data to export.", "error");
+                    return;
+                }
+
+                try {
+                    const exportData = {
+                        exportDate: new Date().toISOString(),
+                        totalEntries: healthLogs.length,
+                        data: healthLogs
+                    };
+
+                    const dataStr = JSON.stringify(exportData, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `food-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showMessage("Data exported successfully!", "success");
+                } catch (error) {
+                    console.error('Export error:', error);
+                    showMessage("Error exporting data.", "error");
+                }
             });
 
             syncHistoryButton.addEventListener('click', async () => {
@@ -411,15 +555,32 @@
                 syncHistoryButton.disabled = true;
                 syncHistoryButton.textContent = "Syncing...";
 
-                // Create a series of promises for each fetch call
-                const syncPromises = healthLogs.map(log => sendToGoogleSheets(log));
+                // Create a series of promises for each fetch call with retry logic
+                const syncPromises = healthLogs.map(async (log, index) => {
+                    const maxRetries = 3;
+                    let attempt = 0;
+
+                    while (attempt < maxRetries) {
+                        try {
+                            await sendToGoogleSheets(log);
+                            return; // Success
+                        } catch (error) {
+                            attempt++;
+                            if (attempt >= maxRetries) {
+                                throw new Error(`Failed to sync entry ${index + 1}: ${error.message}`);
+                            }
+                            // Wait before retry (exponential backoff)
+                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                        }
+                    }
+                });
 
                 try {
                     await Promise.all(syncPromises);
                     showMessage("Sync complete! All history has been sent to your Google Sheet.", "success");
                 } catch (error) {
                     console.error('An error occurred during sync:', error);
-                    showMessage("An error occurred during sync. Please try again.", "error");
+                    showMessage("Some entries failed to sync. Please check your connection and try again.", "error");
                 } finally {
                     syncHistoryButton.disabled = false;
                     syncHistoryButton.textContent = "Sync to Sheet";
