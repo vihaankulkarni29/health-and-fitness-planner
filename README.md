@@ -1,17 +1,16 @@
-# Health & Fitness Planners
+# Food & Fitness Planners
 
-A comprehensive web-based tracking system consisting of two specialized planners: Health Tracker and Fitness Tracker. Both applications feature local storage, Google Sheets integration, and a modern, responsive design.
+A comprehensive web-based tracking system consisting of two specialized planners: Food Tracker and Fitness Tracker. Both applications feature local storage, Google Sheets integration, and a modern, responsive design.
 
 ## Features
 
-### Health Tracker
-- **Sleep Tracking**: Log hours of sleep
-- **Weight Monitoring**: Track body weight in kg
-- **Blood Pressure**: Record systolic/diastolic readings
-- **Heart Rate**: Monitor resting heart rate
-- **Hydration**: Track water intake in ml
-- **Nutrition**: Log calorie consumption
-- **Mood Tracking**: Rate daily mood on a 1-10 scale
+### Food Tracker
+- **Meal Categories**: Breakfast, Lunch, Dinner, Snacks, Beverages, Supplements
+- **Food Logging**: Record food items with quantity and calories
+- **Precise Measurements**: Support for grams/ml measurements with your food scale
+- **Nutrition Tracking**: Track calorie intake across all meals
+- **Supplement Logging**: Keep track of vitamins and supplements
+- **Beverage Monitoring**: Log drinks and their nutritional content
 
 ### Fitness Tracker
 - **Exercise Logging**: Record various exercises with sets, reps, and weight
@@ -84,7 +83,7 @@ function doPost(e) {
 ### 2. Running the Applications
 
 Simply open the HTML files in any modern web browser:
-- `health/health_tracker.html` for health tracking
+- `food/food_tracker.html` for food tracking
 - `fitness/fitness_tracker.html` for fitness tracking
 
 No server or additional setup required!
@@ -93,8 +92,8 @@ No server or additional setup required!
 
 ```
 Planner/
-├── health/
-│   └── health_tracker.html
+├── food/
+│   └── food_tracker.html
 ├── fitness/
 │   └── fitness_tracker.html
 ├── README.md

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Tracker</title>
+    <title>Food Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -27,8 +27,8 @@
 
     <div class="max-w-xl mx-auto">
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-green-400">Health Tracker</h1>
-            <p class="text-gray-400">Monitor your health metrics and track your well-being.</p>
+            <h1 class="text-4xl font-bold text-orange-400">Food Tracker</h1>
+            <p class="text-gray-400">Log your daily food intake and track your nutrition.</p>
         </header>
 
         <main>
@@ -38,15 +38,14 @@
                 <form id="health-form">
                     <div class="mb-4">
                         <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Metric Type</label>
-                        <select id="metric-type" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-green-500 focus:outline-none" required>
-                            <option value="">Select a metric</option>
-                            <option value="sleep">Sleep Hours</option>
-                            <option value="weight">Weight (kg)</option>
-                            <option value="blood-pressure">Blood Pressure</option>
-                            <option value="heart-rate">Heart Rate (bpm)</option>
-                            <option value="water">Water Intake (ml)</option>
-                            <option value="calories">Calories Consumed</option>
-                            <option value="mood">Mood (1-10)</option>
+                        <select id="metric-type" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" required>
+                            <option value="">Select a food category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="supplements">Supplements</option>
                         </select>
                     </div>
 
@@ -54,15 +53,15 @@
                         <!-- Dynamic inputs will be added here -->
                     </div>
 
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
-                        Log Metric
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                        Log Food
                     </button>
                 </form>
             </div>
 
             <div id="history-container">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-green-400">Health History</h2>
+                    <h2 class="text-2xl font-bold text-orange-400">Food History</h2>
                      <div class="flex items-center space-x-2">
                         <button id="sync-history" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">Sync to Sheet</button>
                         <button id="clear-all" class="text-sm bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">Clear All</button>
@@ -114,16 +113,36 @@
                 if (!selectedMetric) return;
 
                 const inputConfigs = {
-                    'sleep': [{ label: 'Hours Slept', type: 'number', step: '0.5', id: 'sleep-hours', placeholder: '8.5' }],
-                    'weight': [{ label: 'Weight (kg)', type: 'number', step: '0.1', id: 'weight', placeholder: '70.5' }],
-                    'blood-pressure': [
-                        { label: 'Systolic (mmHg)', type: 'number', id: 'systolic', placeholder: '120' },
-                        { label: 'Diastolic (mmHg)', type: 'number', id: 'diastolic', placeholder: '80' }
+                    'breakfast': [
+                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Oatmeal with fruits' },
+                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '100' },
+                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '150' }
                     ],
-                    'heart-rate': [{ label: 'Heart Rate (bpm)', type: 'number', id: 'heart-rate', placeholder: '72' }],
-                    'water': [{ label: 'Water Intake (ml)', type: 'number', id: 'water-intake', placeholder: '2000' }],
-                    'calories': [{ label: 'Calories Consumed', type: 'number', id: 'calories', placeholder: '2000' }],
-                    'mood': [{ label: 'Mood Rating (1-10)', type: 'number', min: '1', max: '10', id: 'mood-rating', placeholder: '7' }]
+                    'lunch': [
+                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Chicken salad' },
+                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '200' },
+                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '350' }
+                    ],
+                    'dinner': [
+                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Grilled fish with veggies' },
+                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '250' },
+                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '400' }
+                    ],
+                    'snacks': [
+                        { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Apple' },
+                        { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '150' },
+                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '80' }
+                    ],
+                    'beverages': [
+                        { label: 'Beverage', type: 'text', id: 'food-item', placeholder: 'e.g., Green tea' },
+                        { label: 'Quantity (ml)', type: 'number', step: '1', id: 'quantity', placeholder: '250' },
+                        { label: 'Calories', type: 'number', id: 'calories', placeholder: '0' }
+                    ],
+                    'supplements': [
+                        { label: 'Supplement Name', type: 'text', id: 'food-item', placeholder: 'e.g., Vitamin D3' },
+                        { label: 'Dosage', type: 'text', id: 'quantity', placeholder: '1000 IU' },
+                        { label: 'Notes', type: 'text', id: 'calories', placeholder: 'Optional notes' }
+                    ]
                 };
 
                 const configs = inputConfigs[selectedMetric];
@@ -133,7 +152,7 @@
                         div.className = 'mb-4';
                         div.innerHTML = `
                             <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
-                            <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="${config.placeholder}" required>
+                            <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" required>
                         `;
                         inputContainer.appendChild(div);
                     });
@@ -143,7 +162,7 @@
             const renderHistory = () => {
                 healthHistory.innerHTML = '';
                 if (healthLogs.length === 0) {
-                    healthHistory.innerHTML = '<p class="text-gray-500 text-center">No health metrics logged yet.</p>';
+                    healthHistory.innerHTML = '<p class="text-gray-500 text-center">No food items logged yet.</p>';
                     return;
                 }
                 // We show the history in chronological order, so we reverse a copy of the array.
@@ -153,7 +172,7 @@
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-lg text-green-300">${log.metricType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                                <h3 class="font-bold text-lg text-orange-300">${log.metricType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
                                 <p class="text-gray-300">${log.details}</p>
                             </div>
                             <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span>
@@ -202,51 +221,31 @@
                 let details = '';
                 let isValid = true;
 
-                switch (metricType) {
-                    case 'sleep':
-                        const sleepHours = document.getElementById('sleep-hours').value;
-                        if (!sleepHours) { isValid = false; break; }
-                        log.sleepHours = sleepHours;
-                        details = `${sleepHours} hours`;
-                        break;
-                    case 'weight':
-                        const weight = document.getElementById('weight').value;
-                        if (!weight) { isValid = false; break; }
-                        log.weight = weight;
-                        details = `${weight} kg`;
-                        break;
-                    case 'blood-pressure':
-                        const systolic = document.getElementById('systolic').value;
-                        const diastolic = document.getElementById('diastolic').value;
-                        if (!systolic || !diastolic) { isValid = false; break; }
-                        log.systolic = systolic;
-                        log.diastolic = diastolic;
-                        details = `${systolic}/${diastolic} mmHg`;
-                        break;
-                    case 'heart-rate':
-                        const heartRate = document.getElementById('heart-rate').value;
-                        if (!heartRate) { isValid = false; break; }
-                        log.heartRate = heartRate;
-                        details = `${heartRate} bpm`;
-                        break;
-                    case 'water':
-                        const waterIntake = document.getElementById('water-intake').value;
-                        if (!waterIntake) { isValid = false; break; }
-                        log.waterIntake = waterIntake;
-                        details = `${waterIntake} ml`;
-                        break;
-                    case 'calories':
-                        const calories = document.getElementById('calories').value;
-                        if (!calories) { isValid = false; break; }
-                        log.calories = calories;
-                        details = `${calories} calories`;
-                        break;
-                    case 'mood':
-                        const moodRating = document.getElementById('mood-rating').value;
-                        if (!moodRating) { isValid = false; break; }
-                        log.moodRating = moodRating;
-                        details = `Rating: ${moodRating}/10`;
-                        break;
+                const foodItem = document.getElementById('food-item').value;
+                const quantity = document.getElementById('quantity').value;
+                const calories = document.getElementById('calories').value;
+
+                if (!foodItem.trim() || !quantity) {
+                    isValid = false;
+                } else {
+                    log.foodItem = foodItem;
+                    log.quantity = quantity;
+                    log.calories = calories || '0';
+
+                    switch (metricType) {
+                        case 'breakfast':
+                        case 'lunch':
+                        case 'dinner':
+                        case 'snacks':
+                            details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
+                            break;
+                        case 'beverages':
+                            details = `${foodItem} - ${quantity}ml - ${calories || 0} cal`;
+                            break;
+                        case 'supplements':
+                            details = `${foodItem} - ${quantity} - ${calories || 'No notes'}`;
+                            break;
+                    }
                 }
 
                 if (!isValid) {
@@ -257,13 +256,13 @@
                 log.details = details;
                 healthLogs.push(log);
                 sendToGoogleSheets(log)
-                    .then(() => console.log('Health log sent.'))
-                    .catch(err => console.error('Failed to send health log:', err));
+                    .then(() => console.log('Food log sent.'))
+                    .catch(err => console.error('Failed to send food log:', err));
                 saveHealthLogs();
                 renderHistory();
                 healthForm.reset();
                 inputContainer.innerHTML = '';
-                showMessage("Health metric logged successfully!", 'success');
+                showMessage("Food item logged successfully!", 'success');
             });
 
             clearAllButton.addEventListener('click', () => {
@@ -292,7 +291,7 @@
 
             syncHistoryButton.addEventListener('click', async () => {
                 if(healthLogs.length === 0){
-                    showMessage("No history to sync.", "error");
+                    showMessage("No food history to sync.", "error");
                     return;
                 }
 
