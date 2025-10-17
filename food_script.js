@@ -4,6 +4,14 @@
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
+
+    // Skip test data
+    if (data.test) {
+      return ContentService
+        .createTextOutput('Connection Test Successful')
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
     const ss = SpreadsheetApp.openById('1vdFqzoVsv3wb8M--91F4u-DqJnu_xPqd1MHxQ0IX414');
     const sheet = ss.getSheetByName('Sheet1') || ss.getSheets()[0];
 
