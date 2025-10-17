@@ -106,7 +106,9 @@
                     <h2 class="text-xl font-medium text-gray-900">Food Log</h2>
                      <div class="flex items-center space-x-3">
                         <button id="export-data" class="btn-secondary text-sm py-2 px-4 rounded-md">Export Data</button>
-                        <button id="sync-history" class="btn-secondary text-sm py-2 px-4 rounded-md">Sync to Sheet</button>
+                        <button id="sync-history" class="btn-secondary text-sm py-2 px-4 rounded-md">
+                            <span id="sync-status">Sync to Sheet</span>
+                        </button>
                         <button id="clear-all" class="btn-secondary text-sm py-2 px-4 rounded-md text-red-600 hover:text-red-700">Clear All</button>
                      </div>
                 </div>
@@ -578,12 +580,19 @@
                 try {
                     await Promise.all(syncPromises);
                     showMessage("Sync complete! All history has been sent to your Google Sheet.", "success");
+                    document.getElementById('sync-status').textContent = "✓ Synced";
+                    document.getElementById('sync-status').style.color = "#10b981";
                 } catch (error) {
                     console.error('An error occurred during sync:', error);
                     showMessage("Some entries failed to sync. Please check your connection and try again.", "error");
+                    document.getElementById('sync-status').textContent = "✗ Sync Failed";
+                    document.getElementById('sync-status').style.color = "#ef4444";
                 } finally {
                     syncHistoryButton.disabled = false;
-                    syncHistoryButton.textContent = "Sync to Sheet";
+                    setTimeout(() => {
+                        document.getElementById('sync-status').textContent = "Sync to Sheet";
+                        document.getElementById('sync-status').style.color = "";
+                    }, 3000);
                 }
             });
 
