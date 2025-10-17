@@ -11,35 +11,73 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            background: #ffffff;
+            color: #1a1a1a;
         }
         .message {
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.3s ease-in-out;
         }
         @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
+            animation: fade-in 0.3s ease-out forwards;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            border: 1px solid #d1d5db;
+            transition: border-color 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn-primary {
+            background: #1f2937;
+            color: #ffffff;
+            border: 1px solid #1f2937;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: #111827;
+            border-color: #111827;
+        }
+        .btn-secondary {
+            background: #ffffff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        .text-muted {
+            color: #6b7280;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white p-4 md:p-8">
+<body class="bg-gray-50 p-4 md:p-8">
 
     <div class="max-w-xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-orange-400">Food Tracker</h1>
-            <p class="text-gray-400">Log your daily food intake and track your nutrition.</p>
+        <header class="text-center mb-12">
+            <h1 class="text-3xl font-semibold text-gray-900 mb-2">Food Tracker</h1>
+            <p class="text-gray-600">Log your daily food intake and track your nutrition.</p>
         </header>
 
         <main>
             <div id="message-container" class="mb-4"></div>
 
-            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+            <div class="card p-8 rounded-lg mb-8 max-w-2xl mx-auto">
                 <form id="health-form">
                     <div class="mb-4">
                         <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Metric Type</label>
-                        <select id="metric-type" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" required>
+                        <select id="metric-type" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
                             <option value="">Select a food category</option>
                             <option value="breakfast">Breakfast</option>
                             <option value="lunch">Lunch</option>
@@ -55,28 +93,28 @@
                         <!-- Dynamic inputs will be added here -->
                     </div>
 
-                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                    <button type="submit" class="w-full btn-primary font-medium py-3 px-4 rounded-md">
                         Log Food
                     </button>
 
-                    <div id="nutrition-preview" class="mt-4 p-4 bg-gray-700 rounded-lg hidden">
-                        <h3 class="text-lg font-semibold text-orange-300 mb-2">Nutrition Preview</h3>
-                        <div id="nutrition-details" class="grid grid-cols-2 gap-2 text-sm">
+                    <div id="nutrition-preview" class="mt-6 p-6 bg-gray-50 border border-gray-200 rounded-lg hidden">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Nutrition Preview</h3>
+                        <div id="nutrition-details" class="grid grid-cols-2 gap-3 text-sm">
                             <!-- Nutrition details will be populated here -->
                         </div>
                     </div>
                 </form>
             </div>
 
-            <div id="history-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-orange-400">Food History</h2>
-                     <div class="flex items-center space-x-2">
-                        <button id="sync-history" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">Sync to Sheet</button>
-                        <button id="clear-all" class="text-sm bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">Clear All</button>
+            <div id="history-container" class="max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-medium text-gray-900">Food History</h2>
+                     <div class="flex items-center space-x-3">
+                        <button id="sync-history" class="btn-secondary text-sm py-2 px-4 rounded-md">Sync to Sheet</button>
+                        <button id="clear-all" class="btn-secondary text-sm py-2 px-4 rounded-md text-red-600 hover:text-red-700">Clear All</button>
                      </div>
                 </div>
-                <div id="health-history" class="space-y-4">
+                <div id="health-history" class="space-y-3">
                     <!-- History items will be injected here -->
                 </div>
             </div>
@@ -103,7 +141,7 @@
             const showMessage = (text, type = 'error') => {
                 const colorClass = type === 'error' ? 'bg-red-500' : 'bg-green-500';
                 const messageEl = document.createElement('div');
-                messageEl.className = `message p-3 rounded-lg text-white text-center opacity-0 ${colorClass}`;
+                messageEl.className = `message p-4 rounded-md text-center opacity-0 ${colorClass === 'bg-red-500' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-green-50 text-green-800 border border-green-200'}`;
                 messageEl.textContent = text;
                 messageContainer.innerHTML = '';
                 messageContainer.appendChild(messageEl);
@@ -167,12 +205,12 @@
                         if (config.type === 'textarea') {
                             div.innerHTML = `
                                 <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
-                                <textarea id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" rows="${config.rows}" required></textarea>
+                                <textarea id="${config.id}" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" placeholder="${config.placeholder}" rows="${config.rows}" required></textarea>
                             `;
                         } else {
                             div.innerHTML = `
                                 <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
-                                <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" required>
+                                <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" placeholder="${config.placeholder}" required>
                             `;
                         }
                         inputContainer.appendChild(div);
@@ -192,7 +230,7 @@
                 const servingSize = parseFloat(document.getElementById('serving-size')?.value) || 100;
 
                 if (!ingredientsText.trim()) {
-                    document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-400">Enter ingredients to see nutrition preview</p>';
+                    document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-500">Enter ingredients to see nutrition preview</p>';
                     return;
                 }
 
@@ -203,12 +241,12 @@
                 const servingMultiplier = servingSize / getTotalRecipeWeight(ingredients);
 
                 document.getElementById('nutrition-details').innerHTML = `
-                    <div class="col-span-2 text-orange-300 font-semibold mb-2">Per ${servingSize}g serving:</div>
-                    <div>Calories: ${Math.round(totalNutrition.calories * servingMultiplier)}</div>
-                    <div>Protein: ${Math.round(totalNutrition.protein * servingMultiplier * 10) / 10}g</div>
-                    <div>Carbs: ${Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10}g</div>
-                    <div>Fat: ${Math.round(totalNutrition.fat * servingMultiplier * 10) / 10}g</div>
-                    <div>Fiber: ${Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10}g</div>
+                    <div class="col-span-2 text-gray-700 font-medium mb-3">Per ${servingSize}g serving:</div>
+                    <div class="text-gray-600">Calories: <span class="font-medium text-gray-900">${Math.round(totalNutrition.calories * servingMultiplier)}</span></div>
+                    <div class="text-gray-600">Protein: <span class="font-medium text-gray-900">${Math.round(totalNutrition.protein * servingMultiplier * 10) / 10}g</span></div>
+                    <div class="text-gray-600">Carbs: <span class="font-medium text-gray-900">${Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10}g</span></div>
+                    <div class="text-gray-600">Fat: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fat * servingMultiplier * 10) / 10}g</span></div>
+                    <div class="text-gray-600">Fiber: <span class="font-medium text-gray-900">${Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10}g</span></div>
                 `;
             };
 
@@ -240,20 +278,20 @@
             const renderHistory = () => {
                 healthHistory.innerHTML = '';
                 if (healthLogs.length === 0) {
-                    healthHistory.innerHTML = '<p class="text-gray-500 text-center">No food items logged yet.</p>';
+                    healthHistory.innerHTML = '<p class="text-gray-500 text-center py-8">No food items logged yet.</p>';
                     return;
                 }
                 // We show the history in chronological order, so we reverse a copy of the array.
                 [...healthLogs].reverse().forEach(log => {
                     const el = document.createElement('div');
-                    el.className = 'bg-gray-800 p-4 rounded-lg shadow-md animate-fade-in';
+                    el.className = 'card p-4 rounded-lg animate-fade-in';
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-lg text-orange-300">${log.metricType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-                                <p class="text-gray-300">${log.details}</p>
+                                <h3 class="font-medium text-base text-gray-900">${log.metricType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                                <p class="text-gray-600 mt-1">${log.details}</p>
                             </div>
-                            <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</span>
+                            <span class="text-xs text-gray-500 ml-4 flex-shrink-0">${new Date(log.timestamp).toLocaleString()}</span>
                         </div>
                     `;
                     healthHistory.insertBefore(el, healthHistory.firstChild);
@@ -383,11 +421,11 @@
 
             clearAllButton.addEventListener('click', () => {
                  const messageEl = document.createElement('div');
-                 messageEl.className = 'p-4 rounded-lg bg-gray-700 text-center';
+                 messageEl.className = 'p-6 rounded-lg bg-white border border-gray-200 text-center';
                  messageEl.innerHTML = `
                     <p class="mb-4">Are you sure you want to clear all history? This cannot be undone.</p>
-                    <button id="confirm-clear" class="bg-red-600 text-white py-2 px-4 rounded-lg mr-2">Yes, Clear</button>
-                    <button id="cancel-clear" class="bg-gray-500 text-white py-2 px-4 rounded-lg">Cancel</button>
+                    <button id="confirm-clear" class="btn-primary py-2 px-4 rounded-md mr-3">Yes, Clear</button>
+                    <button id="cancel-clear" class="btn-secondary py-2 px-4 rounded-md">Cancel</button>
                  `;
                  messageContainer.innerHTML = '';
                  messageContainer.appendChild(messageEl);
