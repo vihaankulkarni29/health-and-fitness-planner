@@ -79,6 +79,7 @@
                         <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Logging Method</label>
                         <select id="metric-type" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
                             <option value="">Select logging method</option>
+                            <option value="individual">Individual Food Item</option>
                             <option value="simple">Simple Food Entry</option>
                             <option value="recipe">Recipe Calculator</option>
                             <option value="saved-recipe">Saved Recipe</option>
@@ -225,6 +226,35 @@
                 }
             };
 
+            const populateIndividualFoods = () => {
+                const select = document.getElementById('individual-food-select');
+                if (select) {
+                    select.innerHTML = '<option value="">Choose a food item</option>';
+
+                    // Common individual foods that people weigh
+                    const commonFoods = [
+                        'apple', 'banana', 'orange', 'dates', 'almonds', 'walnuts',
+                        'cashews', 'peanuts', 'raisins', 'strawberries', 'blueberries',
+                        'grapes', 'mango', 'pineapple', 'kiwi', 'pear', 'peach', 'plum',
+                        'carrot', 'tomato', 'cucumber', 'lettuce', 'spinach', 'broccoli',
+                        'cauliflower', 'potato', 'sweet potato', 'onion', 'garlic', 'ginger',
+                        'lemon', 'coconut', 'dark chocolate', 'milk chocolate', 'honey',
+                        'peanut butter', 'cheese slices', 'yogurt plain', 'eggs',
+                        'bread white', 'bread whole wheat', 'rice cooked', 'quinoa cooked',
+                        'oats', 'chia seeds', 'flax seeds'
+                    ];
+
+                    commonFoods.forEach(foodKey => {
+                        if (INGREDIENT_DATABASE[foodKey]) {
+                            const option = document.createElement('option');
+                            option.value = foodKey;
+                            option.textContent = foodKey.replace(/(\b\w)/g, l => l.toUpperCase()).replace(/-/g, ' ');
+                            select.appendChild(option);
+                        }
+                    });
+                }
+            };
+
             const updateInputs = () => {
                 const selectedMetric = metricTypeSelect.value;
                 inputContainer.innerHTML = '';
@@ -232,6 +262,10 @@
                 if (!selectedMetric) return;
 
                 const inputConfigs = {
+                    'individual': [
+                        { label: 'Select Food Item', type: 'select', id: 'individual-food-select', placeholder: 'Choose food' },
+                        { label: 'Quantity (g)', type: 'number', step: '1', id: 'individual-quantity', placeholder: '100' }
+                    ],
                     'simple': [
                         { label: 'Food Item', type: 'text', id: 'food-item', placeholder: 'e.g., Chicken breast' },
                         { label: 'Quantity (g/ml)', type: 'number', step: '1', id: 'quantity', placeholder: '100' },
@@ -270,7 +304,7 @@
                             div.innerHTML = `
                                 <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
                                 <select id="${config.id}" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
-                                    <option value="">Choose a recipe</option>
+                                    <option value="">${config.placeholder}</option>
                                 </select>
                             `;
                         } else {
@@ -283,8 +317,10 @@
                     });
                 }
 
-                // Update saved recipes select if needed
-                if (selectedMetric === 'saved-recipe') {
+                // Populate selects based on type
+                if (selectedMetric === 'individual') {
+                    populateIndividualFoods();
+                } else if (selectedMetric === 'saved-recipe') {
                     updateSavedRecipesSelect();
                 }
 
@@ -430,7 +466,40 @@
                 let isValid = true;
                 let validationErrors = [];
 
-                if (metricType === 'recipe') {
+                if (metricType === 'individual') {
+                    const selectedFood = document.getElementById('individual-food-select').value;
+                    const individualQuantity = parseFloat(document.getElementById('individual-quantity').value);
+
+                    if (!selectedFood) {
+                        validationErrors.push("Please select a food item");
+                        isValid = false;
+                    }
+                    if (!individualQuantity || individualQuantity <= 0 || individualQuantity > 1000) {
+                        validationErrors.push("Quantity must be between 1-1000g");
+                        isValid = false;
+                    }
+
+                    if (isValid) {
+                        const nutrition = calculateNutrition(selectedFood, individualQuantity);
+                        if (!nutrition) {
+                            validationErrors.push("Nutrition data not found for this food");
+                            isValid = false;
+                        } else {
+                            log.foodItem = selectedFood.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            log.quantity = individualQuantity;
+                            log.calories = nutrition.calories;
+                            log.nutrition = {
+                                calories: nutrition.calories,
+                                protein: nutrition.protein,
+                                carbs: nutrition.carbs,
+                                fat: nutrition.fat,
+                                fiber: nutrition.fiber
+                            };
+
+                            details = `${log.foodItem} - ${individualQuantity}g - ${nutrition.calories} cal, ${nutrition.protein}g protein`;
+                        }
+                    }
+                } else if (metricType === 'recipe') {
                     const recipeName = sanitizeInput(document.getElementById('recipe-name').value);
                     const ingredientsText = document.getElementById('ingredients-list').value.trim();
                     const servingSize = parseFloat(document.getElementById('serving-size').value);

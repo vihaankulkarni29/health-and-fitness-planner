@@ -75,6 +75,23 @@ function doPost(e) {
         data.details || '',
         JSON.stringify(data)
       ];
+    } else if (data.metricType === 'individual') {
+      rowData = [
+        timestamp,
+        'Individual',
+        data.foodItem || '',
+        data.quantity || '',
+        data.nutrition?.calories || data.calories || '',
+        '',
+        '',
+        data.nutrition?.protein || '',
+        data.nutrition?.carbs || '',
+        data.nutrition?.fat || '',
+        data.nutrition?.fiber || '',
+        '',
+        data.details || '',
+        JSON.stringify(data)
+      ];
     } else {
       // Simple food entry
       rowData = [
