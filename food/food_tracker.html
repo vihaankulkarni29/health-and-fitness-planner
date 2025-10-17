@@ -6,6 +6,7 @@
     <title>Food Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="ingredients.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -46,6 +47,7 @@
                             <option value="snacks">Snacks</option>
                             <option value="beverages">Beverages</option>
                             <option value="supplements">Supplements</option>
+                            <option value="recipe">Recipe Calculator</option>
                         </select>
                     </div>
 
@@ -56,6 +58,13 @@
                     <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
                         Log Food
                     </button>
+
+                    <div id="nutrition-preview" class="mt-4 p-4 bg-gray-700 rounded-lg hidden">
+                        <h3 class="text-lg font-semibold text-orange-300 mb-2">Nutrition Preview</h3>
+                        <div id="nutrition-details" class="grid grid-cols-2 gap-2 text-sm">
+                            <!-- Nutrition details will be populated here -->
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -142,6 +151,11 @@
                         { label: 'Supplement Name', type: 'text', id: 'food-item', placeholder: 'e.g., Vitamin D3' },
                         { label: 'Dosage', type: 'text', id: 'quantity', placeholder: '1000 IU' },
                         { label: 'Notes', type: 'text', id: 'calories', placeholder: 'Optional notes' }
+                    ],
+                    'recipe': [
+                        { label: 'Recipe Name', type: 'text', id: 'recipe-name', placeholder: 'e.g., Chicken Curry' },
+                        { label: 'Ingredients (one per line: "ingredient quantity")', type: 'textarea', id: 'ingredients-list', placeholder: 'chicken breast 100g\nonion 50g\ncurd 20g', rows: 6 },
+                        { label: 'Total Serving Size (g)', type: 'number', id: 'serving-size', placeholder: '200' }
                     ]
                 };
 
@@ -150,13 +164,77 @@
                     configs.forEach(config => {
                         const div = document.createElement('div');
                         div.className = 'mb-4';
-                        div.innerHTML = `
-                            <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
-                            <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" required>
-                        `;
+                        if (config.type === 'textarea') {
+                            div.innerHTML = `
+                                <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
+                                <textarea id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" rows="${config.rows}" required></textarea>
+                            `;
+                        } else {
+                            div.innerHTML = `
+                                <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
+                                <input type="${config.type}" ${config.step ? `step="${config.step}"` : ''} ${config.min ? `min="${config.min}"` : ''} ${config.max ? `max="${config.max}"` : ''} id="${config.id}" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-2 focus:ring-orange-500 focus:outline-none" placeholder="${config.placeholder}" required>
+                            `;
+                        }
                         inputContainer.appendChild(div);
                     });
                 }
+
+                // Show nutrition preview for recipes
+                if (selectedMetric === 'recipe') {
+                    document.getElementById('nutrition-preview').classList.remove('hidden');
+                } else {
+                    document.getElementById('nutrition-preview').classList.add('hidden');
+                }
+            };
+
+            const updateNutritionPreview = () => {
+                const ingredientsText = document.getElementById('ingredients-list')?.value || '';
+                const servingSize = parseFloat(document.getElementById('serving-size')?.value) || 100;
+
+                if (!ingredientsText.trim()) {
+                    document.getElementById('nutrition-details').innerHTML = '<p class="text-gray-400">Enter ingredients to see nutrition preview</p>';
+                    return;
+                }
+
+                const ingredients = parseIngredients(ingredientsText);
+                const totalNutrition = calculateRecipeNutrition(ingredients);
+
+                // Calculate per serving
+                const servingMultiplier = servingSize / getTotalRecipeWeight(ingredients);
+
+                document.getElementById('nutrition-details').innerHTML = `
+                    <div class="col-span-2 text-orange-300 font-semibold mb-2">Per ${servingSize}g serving:</div>
+                    <div>Calories: ${Math.round(totalNutrition.calories * servingMultiplier)}</div>
+                    <div>Protein: ${Math.round(totalNutrition.protein * servingMultiplier * 10) / 10}g</div>
+                    <div>Carbs: ${Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10}g</div>
+                    <div>Fat: ${Math.round(totalNutrition.fat * servingMultiplier * 10) / 10}g</div>
+                    <div>Fiber: ${Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10}g</div>
+                `;
+            };
+
+            const parseIngredients = (text) => {
+                const lines = text.split('\n').filter(line => line.trim());
+                const ingredients = [];
+
+                lines.forEach(line => {
+                    const match = line.trim().match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(g|ml|kg|l)$/i);
+                    if (match) {
+                        const [, name, quantity, unit] = match;
+                        let qty = parseFloat(quantity);
+
+                        // Convert units to grams
+                        if (unit.toLowerCase() === 'kg') qty *= 1000;
+                        if (unit.toLowerCase() === 'l' || unit.toLowerCase() === 'ml') qty *= 1; // Keep as is for now
+
+                        ingredients.push({ name: name.trim(), quantity: qty });
+                    }
+                });
+
+                return ingredients;
+            };
+
+            const getTotalRecipeWeight = (ingredients) => {
+                return ingredients.reduce((total, ing) => total + ing.quantity, 0);
             };
 
             const renderHistory = () => {
@@ -204,6 +282,13 @@
 
             metricTypeSelect.addEventListener('change', updateInputs);
 
+            // Add event listener for recipe ingredients textarea
+            document.addEventListener('input', (e) => {
+                if (e.target.id === 'ingredients-list') {
+                    updateNutritionPreview();
+                }
+            });
+
             healthForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const metricType = metricTypeSelect.value;
@@ -221,30 +306,57 @@
                 let details = '';
                 let isValid = true;
 
-                const foodItem = document.getElementById('food-item').value;
-                const quantity = document.getElementById('quantity').value;
-                const calories = document.getElementById('calories').value;
+                if (metricType === 'recipe') {
+                    const recipeName = document.getElementById('recipe-name').value;
+                    const ingredientsText = document.getElementById('ingredients-list').value;
+                    const servingSize = document.getElementById('serving-size').value;
 
-                if (!foodItem.trim() || !quantity) {
-                    isValid = false;
+                    if (!recipeName.trim() || !ingredientsText.trim() || !servingSize) {
+                        isValid = false;
+                    } else {
+                        const ingredients = parseIngredients(ingredientsText);
+                        const totalNutrition = calculateRecipeNutrition(ingredients);
+                        const servingMultiplier = parseFloat(servingSize) / getTotalRecipeWeight(ingredients);
+
+                        log.recipeName = recipeName;
+                        log.ingredients = ingredients;
+                        log.servingSize = servingSize;
+                        log.nutrition = {
+                            calories: Math.round(totalNutrition.calories * servingMultiplier),
+                            protein: Math.round(totalNutrition.protein * servingMultiplier * 10) / 10,
+                            carbs: Math.round(totalNutrition.carbs * servingMultiplier * 10) / 10,
+                            fat: Math.round(totalNutrition.fat * servingMultiplier * 10) / 10,
+                            fiber: Math.round(totalNutrition.fiber * servingMultiplier * 10) / 10
+                        };
+
+                        details = `${recipeName} (${servingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
+                    }
                 } else {
-                    log.foodItem = foodItem;
-                    log.quantity = quantity;
-                    log.calories = calories || '0';
+                    const foodItem = document.getElementById('food-item').value;
+                    const quantity = document.getElementById('quantity').value;
+                    const calories = document.getElementById('calories').value;
 
-                    switch (metricType) {
-                        case 'breakfast':
-                        case 'lunch':
-                        case 'dinner':
-                        case 'snacks':
-                            details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
-                            break;
-                        case 'beverages':
-                            details = `${foodItem} - ${quantity}ml - ${calories || 0} cal`;
-                            break;
-                        case 'supplements':
-                            details = `${foodItem} - ${quantity} - ${calories || 'No notes'}`;
-                            break;
+                    if (!foodItem.trim() || !quantity) {
+                        isValid = false;
+                    } else {
+                        log.foodItem = foodItem;
+                        log.quantity = quantity;
+                        log.calories = calories || '0';
+
+                        switch (metricType) {
+                            case 'breakfast':
+                            case 'lunch':
+                            case 'dinner':
+                            case 'snacks':
+                                details = `${foodItem} - ${quantity}g - ${calories || 0} cal`;
+                                break;
+                            case 'beverages':
+                                details = `${foodItem} - ${quantity}ml - ${calories || 0} cal`;
+                                break;
+                            case 'supplements':
+                                details = `${foodItem} - ${quantity} - ${calories || 'No notes'}`;
+                                break;
+                        }
                     }
                 }
 
@@ -262,7 +374,11 @@
                 renderHistory();
                 healthForm.reset();
                 inputContainer.innerHTML = '';
-                showMessage("Food item logged successfully!", 'success');
+                if (metricType === 'recipe') {
+                    showMessage("Recipe logged successfully!", 'success');
+                } else {
+                    showMessage("Food item logged successfully!", 'success');
+                }
             });
 
             clearAllButton.addEventListener('click', () => {
