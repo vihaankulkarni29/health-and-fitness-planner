@@ -144,6 +144,23 @@
             // IMPORTANT: This is your unique Google Apps Script URL for Fitness Tracker.
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY/exec';
 
+            // Test the connection on page load
+            const testConnection = async () => {
+                try {
+                    const testData = { test: true, timestamp: Date.now() };
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testData)
+                    });
+                    console.log('Google Sheets connection test successful');
+                } catch (error) {
+                    console.warn('Google Sheets connection test failed:', error);
+                    showMessage("Warning: Google Sheets connection may not be working. Check your script URL.", "error");
+                }
+            };
+
             const workoutForm = document.getElementById('workout-form');
             const exerciseTypeToggle = {
                 weightReps: document.getElementById('toggle-weight-reps'),
@@ -344,6 +361,9 @@
 
             // Initial render
             renderHistory();
+
+            // Test connection after a short delay
+            setTimeout(testConnection, 2000);
         });
     </script>
 </body>
