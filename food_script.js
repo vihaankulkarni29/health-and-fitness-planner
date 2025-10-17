@@ -50,6 +50,23 @@ function doPost(e) {
         data.details || '',
         JSON.stringify(data)
       ];
+    } else if (data.metricType === 'saved-recipe') {
+      rowData = [
+        timestamp,
+        'Saved Recipe',
+        '',
+        '',
+        data.nutrition?.calories || '',
+        data.recipeName || '',
+        data.servingSize || '',
+        data.nutrition?.protein || '',
+        data.nutrition?.carbs || '',
+        data.nutrition?.fat || '',
+        data.nutrition?.fiber || '',
+        '',
+        data.details || '',
+        JSON.stringify(data)
+      ];
     } else {
       // Simple food entry
       rowData = [

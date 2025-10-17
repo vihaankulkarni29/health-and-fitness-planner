@@ -5,12 +5,12 @@ A comprehensive web-based tracking system consisting of two specialized planners
 ## Features
 
 ### Food Tracker
-- **Meal Categories**: Breakfast, Lunch, Dinner, Snacks, Beverages, Supplements
-- **Food Logging**: Record food items with quantity and calories
-- **Precise Measurements**: Support for grams/ml measurements with your food scale
-- **Nutrition Tracking**: Track calorie intake across all meals
-- **Supplement Logging**: Keep track of vitamins and supplements
-- **Beverage Monitoring**: Log drinks and their nutritional content
+- **Recipe Calculator**: Calculate nutrition from ingredient lists for home-cooked meals
+- **Recipe Storage**: Save recipes for quick future access (e.g., "Butter Chicken")
+- **Food Scale Integration**: Precise grams/ml measurements for accurate portion tracking
+- **Ingredient Database**: 100+ common ingredients with nutritional data
+- **Multiple Logging Methods**: Simple entry, recipe calculator, or saved recipe lookup
+- **Comprehensive Nutrition**: Calories, protein, carbs, fat, and fiber tracking
 
 ### Fitness Tracker
 - **Exercise Logging**: Record various exercises with sets, reps, and weight

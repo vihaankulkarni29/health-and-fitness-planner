@@ -76,11 +76,12 @@
             <div class="card p-8 rounded-lg mb-8 max-w-2xl mx-auto">
                 <form id="health-form">
                     <div class="mb-4">
-                        <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Metric Type</label>
+                        <label for="metric-type" class="block text-sm font-medium text-gray-300 mb-2">Logging Method</label>
                         <select id="metric-type" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
                             <option value="">Select logging method</option>
                             <option value="simple">Simple Food Entry</option>
                             <option value="recipe">Recipe Calculator</option>
+                            <option value="saved-recipe">Saved Recipe</option>
                         </select>
                     </div>
 
@@ -134,6 +135,7 @@
 
             // Load and validate stored data
             let healthLogs = [];
+            let savedRecipes = [];
             try {
                 const storedData = localStorage.getItem('healthLogs');
                 if (storedData) {
@@ -146,10 +148,22 @@
                         );
                     }
                 }
+
+                const storedRecipes = localStorage.getItem('savedRecipes');
+                if (storedRecipes) {
+                    const parsedRecipes = JSON.parse(storedRecipes);
+                    if (Array.isArray(parsedRecipes)) {
+                        savedRecipes = parsedRecipes.filter(recipe =>
+                            recipe && typeof recipe === 'object' &&
+                            recipe.id && recipe.name && recipe.ingredients && recipe.nutrition
+                        );
+                    }
+                }
             } catch (error) {
                 console.error('Error loading stored data:', error);
                 showMessage("Error loading saved data. Starting fresh.", "error");
                 healthLogs = [];
+                savedRecipes = [];
             }
 
             // --- Utility Functions ---
@@ -181,6 +195,19 @@
                 }, 4000);
             };
 
+            const updateSavedRecipesSelect = () => {
+                const select = document.getElementById('saved-recipe-select');
+                if (select) {
+                    select.innerHTML = '<option value="">Choose a recipe</option>';
+                    savedRecipes.forEach(recipe => {
+                        const option = document.createElement('option');
+                        option.value = recipe.id;
+                        option.textContent = recipe.name;
+                        select.appendChild(option);
+                    });
+                }
+            };
+
             const updateInputs = () => {
                 const selectedMetric = metricTypeSelect.value;
                 inputContainer.innerHTML = '';
@@ -196,7 +223,12 @@
                     'recipe': [
                         { label: 'Recipe Name', type: 'text', id: 'recipe-name', placeholder: 'e.g., Chicken Curry' },
                         { label: 'Ingredients (one per line: "ingredient quantity")', type: 'textarea', id: 'ingredients-list', placeholder: 'chicken breast 100g\nonion 50g\ncurd 20g', rows: 6 },
-                        { label: 'Total Serving Size (g)', type: 'number', id: 'serving-size', placeholder: '200' }
+                        { label: 'Total Serving Size (g)', type: 'number', id: 'serving-size', placeholder: '200' },
+                        { label: 'Save Recipe?', type: 'checkbox', id: 'save-recipe', label: 'Save this recipe for future use' }
+                    ],
+                    'saved-recipe': [
+                        { label: 'Select Saved Recipe', type: 'select', id: 'saved-recipe-select', placeholder: 'Choose a recipe' },
+                        { label: 'Serving Size (g)', type: 'number', id: 'saved-serving-size', placeholder: '200' }
                     ]
                 };
 
@@ -210,6 +242,20 @@
                                 <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
                                 <textarea id="${config.id}" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" placeholder="${config.placeholder}" rows="${config.rows}" required></textarea>
                             `;
+                        } else if (config.type === 'checkbox') {
+                            div.innerHTML = `
+                                <label for="${config.id}" class="flex items-center">
+                                    <input type="checkbox" id="${config.id}" class="mr-2">
+                                    <span class="text-sm font-medium text-gray-300">${config.label}</span>
+                                </label>
+                            `;
+                        } else if (config.type === 'select') {
+                            div.innerHTML = `
+                                <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
+                                <select id="${config.id}" class="w-full input-field text-gray-900 rounded-md p-3 focus:outline-none" required>
+                                    <option value="">Choose a recipe</option>
+                                </select>
+                            `;
                         } else {
                             div.innerHTML = `
                                 <label for="${config.id}" class="block text-sm font-medium text-gray-300 mb-2">${config.label}</label>
@@ -218,6 +264,11 @@
                         }
                         inputContainer.appendChild(div);
                     });
+                }
+
+                // Update saved recipes select if needed
+                if (selectedMetric === 'saved-recipe') {
+                    updateSavedRecipesSelect();
                 }
 
                 // Show nutrition preview for recipes
@@ -366,6 +417,7 @@
                     const recipeName = sanitizeInput(document.getElementById('recipe-name').value);
                     const ingredientsText = document.getElementById('ingredients-list').value.trim();
                     const servingSize = parseFloat(document.getElementById('serving-size').value);
+                    const saveRecipe = document.getElementById('save-recipe')?.checked || false;
 
                     if (!recipeName || recipeName.length < 2) {
                         validationErrors.push("Recipe name must be at least 2 characters");
@@ -407,7 +459,71 @@
                                 };
 
                                 details = `${recipeName} (${servingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
+
+                                // Save recipe if requested
+                                if (saveRecipe) {
+                                    const recipeToSave = {
+                                        id: Date.now(),
+                                        name: recipeName,
+                                        ingredients: ingredients,
+                                        nutrition: log.nutrition,
+                                        servingSize: servingSize,
+                                        createdAt: Date.now()
+                                    };
+
+                                    // Check if recipe with same name already exists
+                                    const existingRecipeIndex = savedRecipes.findIndex(r => r.name.toLowerCase() === recipeName.toLowerCase());
+                                    if (existingRecipeIndex >= 0) {
+                                        savedRecipes[existingRecipeIndex] = recipeToSave;
+                                    } else {
+                                        savedRecipes.push(recipeToSave);
+                                    }
+
+                                    // Save to localStorage
+                                    try {
+                                        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+                                        showMessage(`Recipe "${recipeName}" saved successfully!`, 'success');
+                                    } catch (error) {
+                                        console.error('Error saving recipe:', error);
+                                        showMessage("Recipe created but couldn't be saved locally.", "error");
+                                    }
+                                }
                             }
+                        }
+                    }
+                } else if (metricType === 'saved-recipe') {
+                    const selectedRecipeId = document.getElementById('saved-recipe-select').value;
+                    const savedServingSize = parseFloat(document.getElementById('saved-serving-size').value);
+
+                    if (!selectedRecipeId) {
+                        validationErrors.push("Please select a saved recipe");
+                        isValid = false;
+                    }
+                    if (!savedServingSize || savedServingSize <= 0 || savedServingSize > 5000) {
+                        validationErrors.push("Serving size must be between 1-5000g");
+                        isValid = false;
+                    }
+
+                    if (isValid) {
+                        const recipe = savedRecipes.find(r => r.id == selectedRecipeId);
+                        if (!recipe) {
+                            validationErrors.push("Recipe not found");
+                            isValid = false;
+                        } else {
+                            const servingMultiplier = savedServingSize / recipe.servingSize;
+
+                            log.recipeId = selectedRecipeId;
+                            log.recipeName = recipe.name;
+                            log.servingSize = savedServingSize;
+                            log.nutrition = {
+                                calories: Math.max(0, Math.round(recipe.nutrition.calories * servingMultiplier)),
+                                protein: Math.max(0, Math.round(recipe.nutrition.protein * servingMultiplier * 10) / 10),
+                                carbs: Math.max(0, Math.round(recipe.nutrition.carbs * servingMultiplier * 10) / 10),
+                                fat: Math.max(0, Math.round(recipe.nutrition.fat * servingMultiplier * 10) / 10),
+                                fiber: Math.max(0, Math.round(recipe.nutrition.fiber * servingMultiplier * 10) / 10)
+                            };
+
+                            details = `${recipe.name} (${savedServingSize}g) - ${log.nutrition.calories} cal, ${log.nutrition.protein}g protein`;
                         }
                     }
                 } else {
@@ -598,6 +714,7 @@
 
             // Initial render
             renderHistory();
+            updateSavedRecipesSelect();
         });
     </script>
 </body>
