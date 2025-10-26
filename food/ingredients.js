@@ -2,46 +2,46 @@
 // Values per 100g unless otherwise specified
 const INGREDIENT_DATABASE = {
     // Proteins - Chicken, Fish, Eggs (Indian preferences)
-    'chicken breast': { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0 },
-    'chicken thigh': { calories: 209, protein: 26, carbs: 0, fat: 10.9, fiber: 0 },
-    'chicken drumstick': { calories: 155, protein: 24.2, carbs: 0, fat: 5.7, fiber: 0 },
-    'chicken curry cut': { calories: 180, protein: 28, carbs: 0, fat: 8, fiber: 0 },
-    'fish pomfret': { calories: 124, protein: 23, carbs: 0, fat: 3.5, fiber: 0 },
-    'fish surmai': { calories: 136, protein: 25, carbs: 0, fat: 4.2, fiber: 0 },
-    'fish bombay duck': { calories: 105, protein: 20, carbs: 0, fat: 2.8, fiber: 0 },
-    'fish rohu': { calories: 97, protein: 20, carbs: 0, fat: 2.1, fiber: 0 },
-    'fish katla': { calories: 105, protein: 22, carbs: 0, fat: 2.5, fiber: 0 },
-    'prawns': { calories: 99, protein: 24, carbs: 0.3, fat: 0.3, fiber: 0 },
-    'fish salmon': { calories: 206, protein: 22, carbs: 0, fat: 12, fiber: 0 },
-    'fish tuna': { calories: 144, protein: 25, carbs: 0, fat: 4, fiber: 0 },
-    'fish cod': { calories: 82, protein: 18, carbs: 0, fat: 0.7, fiber: 0 },
-    'eggs': { calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0 },
-    'egg white': { calories: 52, protein: 11, carbs: 0.7, fat: 0.2, fiber: 0 },
-    'tofu': { calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3 },
-    'paneer': { calories: 265, protein: 18, carbs: 3.4, fat: 20, fiber: 0 },
-    'lentils cooked': { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 7.9 },
-    'chickpeas cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6 },
-    'kidney beans cooked': { calories: 127, protein: 8.9, carbs: 22, fat: 0.5, fiber: 6.5 },
-    'black beans cooked': { calories: 132, protein: 8.9, carbs: 24, fat: 0.5, fiber: 8.9 },
-    'peas cooked': { calories: 81, protein: 5.4, carbs: 14, fat: 0.4, fiber: 5.7 },
-    'moong dal cooked': { calories: 116, protein: 7.8, carbs: 20, fat: 0.4, fiber: 7.9 },
-    'urad dal cooked': { calories: 114, protein: 8.8, carbs: 20, fat: 0.4, fiber: 6.5 },
-    'chana dal cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6 },
-    'rajma cooked': { calories: 127, protein: 8.9, carbs: 22, fat: 0.5, fiber: 6.5 },
-    'toor dal cooked': { calories: 116, protein: 7.8, carbs: 20, fat: 0.4, fiber: 7.9 },
-    'masoor dal cooked': { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 7.9 },
-    'chole cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6 },
+    'chicken breast': { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 15, iron: 1.3, potassium: 256, magnesium: 29 },
+    'chicken thigh': { calories: 209, protein: 26, carbs: 0, fat: 10.9, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 11, iron: 1.1, potassium: 239, magnesium: 24 },
+    'chicken drumstick': { calories: 155, protein: 24.2, carbs: 0, fat: 5.7, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 12, iron: 1.2, potassium: 218, magnesium: 21 },
+    'chicken curry cut': { calories: 180, protein: 28, carbs: 0, fat: 8, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 13, iron: 1.2, potassium: 247, magnesium: 26 },
+    'fish pomfret': { calories: 124, protein: 23, carbs: 0, fat: 3.5, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 45, iron: 0.8, potassium: 356, magnesium: 32 },
+    'fish surmai': { calories: 136, protein: 25, carbs: 0, fat: 4.2, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 38, iron: 0.9, potassium: 387, magnesium: 35 },
+    'fish bombay duck': { calories: 105, protein: 20, carbs: 0, fat: 2.8, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 42, iron: 0.7, potassium: 298, magnesium: 28 },
+    'fish rohu': { calories: 97, protein: 20, carbs: 0, fat: 2.1, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 35, iron: 0.8, potassium: 312, magnesium: 29 },
+    'fish katla': { calories: 105, protein: 22, carbs: 0, fat: 2.5, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 40, iron: 0.8, potassium: 334, magnesium: 31 },
+    'prawns': { calories: 99, protein: 24, carbs: 0.3, fat: 0.3, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 70, iron: 0.6, potassium: 259, magnesium: 39 },
+    'fish salmon': { calories: 206, protein: 22, carbs: 0, fat: 12, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 12, iron: 0.3, potassium: 363, magnesium: 29 },
+    'fish tuna': { calories: 144, protein: 25, carbs: 0, fat: 4, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 8, iron: 0.6, potassium: 323, magnesium: 32 },
+    'fish cod': { calories: 82, protein: 18, carbs: 0, fat: 0.7, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 16, iron: 0.1, potassium: 413, magnesium: 32 },
+    'eggs': { calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0, vitaminA: 540, vitaminC: 0, calcium: 56, iron: 1.8, potassium: 138, magnesium: 12 },
+    'egg white': { calories: 52, protein: 11, carbs: 0.7, fat: 0.2, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 7, iron: 0.1, potassium: 163, magnesium: 11 },
+    'tofu': { calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3, vitaminA: 0, vitaminC: 0.2, calcium: 350, iron: 5.4, potassium: 121, magnesium: 30 },
+    'paneer': { calories: 265, protein: 18, carbs: 3.4, fat: 20, fiber: 0, vitaminA: 0, vitaminC: 0, calcium: 208, iron: 0.1, potassium: 98, magnesium: 26 },
+    'lentils cooked': { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 7.9, vitaminA: 8, vitaminC: 1.5, calcium: 19, iron: 3.3, potassium: 369, magnesium: 36 },
+    'chickpeas cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6, vitaminA: 3, vitaminC: 1.3, calcium: 49, iron: 2.9, potassium: 291, magnesium: 48 },
+    'kidney beans cooked': { calories: 127, protein: 8.9, carbs: 22, fat: 0.5, fiber: 6.5, vitaminA: 0, vitaminC: 1.2, calcium: 35, iron: 2.1, potassium: 403, magnesium: 45 },
+    'black beans cooked': { calories: 132, protein: 8.9, carbs: 24, fat: 0.5, fiber: 8.9, vitaminA: 0, vitaminC: 0, calcium: 35, iron: 2.1, potassium: 355, magnesium: 50 },
+    'peas cooked': { calories: 81, protein: 5.4, carbs: 14, fat: 0.4, fiber: 5.7, vitaminA: 38, vitaminC: 13.2, calcium: 25, iron: 1.5, potassium: 271, magnesium: 33 },
+    'moong dal cooked': { calories: 116, protein: 7.8, carbs: 20, fat: 0.4, fiber: 7.9, vitaminA: 0, vitaminC: 0.4, calcium: 29, iron: 1.8, potassium: 326, magnesium: 42 },
+    'urad dal cooked': { calories: 114, protein: 8.8, carbs: 20, fat: 0.4, fiber: 6.5, vitaminA: 0, vitaminC: 0, calcium: 35, iron: 2.1, potassium: 286, magnesium: 45 },
+    'chana dal cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6, vitaminA: 3, vitaminC: 1.3, calcium: 49, iron: 2.9, potassium: 291, magnesium: 48 },
+    'rajma cooked': { calories: 127, protein: 8.9, carbs: 22, fat: 0.5, fiber: 6.5, vitaminA: 0, vitaminC: 1.2, calcium: 35, iron: 2.1, potassium: 403, magnesium: 45 },
+    'toor dal cooked': { calories: 116, protein: 7.8, carbs: 20, fat: 0.4, fiber: 7.9, vitaminA: 0, vitaminC: 0.4, calcium: 29, iron: 1.8, potassium: 326, magnesium: 42 },
+    'masoor dal cooked': { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 7.9, vitaminA: 0, vitaminC: 0, calcium: 19, iron: 3.3, potassium: 369, magnesium: 36 },
+    'chole cooked': { calories: 164, protein: 7.6, carbs: 27, fat: 2.6, fiber: 7.6, vitaminA: 3, vitaminC: 1.3, calcium: 49, iron: 2.9, potassium: 291, magnesium: 48 },
 
     // Dairy
-    'milk cow': { calories: 61, protein: 3.2, carbs: 4.8, fat: 3.3, fiber: 0 },
-    'milk buffalo': { calories: 97, protein: 3.8, carbs: 5, fat: 6.5, fiber: 0 },
-    'curd': { calories: 61, protein: 3.1, carbs: 4.6, fat: 4, fiber: 0 },
-    'yogurt plain': { calories: 61, protein: 3.5, carbs: 4.7, fat: 3.3, fiber: 0 },
-    'cheese cheddar': { calories: 402, protein: 7, carbs: 3.4, fat: 33, fiber: 0 },
-    'cheese mozzarella': { calories: 280, protein: 17.1, carbs: 3.1, fat: 17.1, fiber: 0 },
-    'butter': { calories: 717, protein: 0.9, carbs: 0.1, fat: 81, fiber: 0 },
-    'ghee': { calories: 900, protein: 0, carbs: 0, fat: 100, fiber: 0 },
-    'cream': { calories: 340, protein: 2.1, carbs: 4.1, fat: 35, fiber: 0 },
+    'milk cow': { calories: 61, protein: 3.2, carbs: 4.8, fat: 3.3, fiber: 0, vitaminA: 162, vitaminC: 0, calcium: 119, iron: 0.1, potassium: 150, magnesium: 12 },
+    'milk buffalo': { calories: 97, protein: 3.8, carbs: 5, fat: 6.5, fiber: 0, vitaminA: 176, vitaminC: 0, calcium: 195, iron: 0.1, potassium: 178, magnesium: 18 },
+    'curd': { calories: 61, protein: 3.1, carbs: 4.6, fat: 4, fiber: 0, vitaminA: 162, vitaminC: 0, calcium: 119, iron: 0.1, potassium: 150, magnesium: 12 },
+    'yogurt plain': { calories: 61, protein: 3.5, carbs: 4.7, fat: 3.3, fiber: 0, vitaminA: 162, vitaminC: 0, calcium: 121, iron: 0.1, potassium: 155, magnesium: 12 },
+    'cheese cheddar': { calories: 402, protein: 7, carbs: 3.4, fat: 33, fiber: 0, vitaminA: 1002, vitaminC: 0, calcium: 721, iron: 0.7, potassium: 98, magnesium: 28 },
+    'cheese mozzarella': { calories: 280, protein: 17.1, carbs: 3.1, fat: 17.1, fiber: 0, vitaminA: 676, vitaminC: 0, calcium: 575, iron: 0.4, potassium: 76, magnesium: 21 },
+    'butter': { calories: 717, protein: 0.9, carbs: 0.1, fat: 81, fiber: 0, vitaminA: 2499, vitaminC: 0, calcium: 24, iron: 0.1, potassium: 24, magnesium: 2 },
+    'ghee': { calories: 900, protein: 0, carbs: 0, fat: 100, fiber: 0, vitaminA: 2800, vitaminC: 0, calcium: 0, iron: 0, potassium: 0, magnesium: 0 },
+    'cream': { calories: 340, protein: 2.1, carbs: 4.1, fat: 35, fiber: 0, vitaminA: 1242, vitaminC: 0, calcium: 101, iron: 0.1, potassium: 132, magnesium: 10 },
 
     // Vegetables
     'onion': { calories: 40, protein: 1.1, carbs: 9.3, fat: 0.1, fiber: 1.7 },
@@ -284,7 +284,13 @@ function calculateNutrition(ingredientName, quantity) {
         protein: Math.round(ingredient.protein * multiplier * 10) / 10,
         carbs: Math.round(ingredient.carbs * multiplier * 10) / 10,
         fat: Math.round(ingredient.fat * multiplier * 10) / 10,
-        fiber: Math.round(ingredient.fiber * multiplier * 10) / 10
+        fiber: Math.round(ingredient.fiber * multiplier * 10) / 10,
+        vitaminA: Math.round((ingredient.vitaminA || 0) * multiplier),
+        vitaminC: Math.round((ingredient.vitaminC || 0) * multiplier * 10) / 10,
+        calcium: Math.round((ingredient.calcium || 0) * multiplier),
+        iron: Math.round((ingredient.iron || 0) * multiplier * 10) / 10,
+        potassium: Math.round((ingredient.potassium || 0) * multiplier),
+        magnesium: Math.round((ingredient.magnesium || 0) * multiplier)
     };
 }
 
@@ -295,7 +301,13 @@ function calculateRecipeNutrition(ingredients) {
         protein: 0,
         carbs: 0,
         fat: 0,
-        fiber: 0
+        fiber: 0,
+        vitaminA: 0,
+        vitaminC: 0,
+        calcium: 0,
+        iron: 0,
+        potassium: 0,
+        magnesium: 0
     };
 
     ingredients.forEach(ing => {
@@ -306,6 +318,12 @@ function calculateRecipeNutrition(ingredients) {
             total.carbs += nutrition.carbs;
             total.fat += nutrition.fat;
             total.fiber += nutrition.fiber;
+            total.vitaminA += nutrition.vitaminA;
+            total.vitaminC += nutrition.vitaminC;
+            total.calcium += nutrition.calcium;
+            total.iron += nutrition.iron;
+            total.potassium += nutrition.potassium;
+            total.magnesium += nutrition.magnesium;
         }
     });
 
