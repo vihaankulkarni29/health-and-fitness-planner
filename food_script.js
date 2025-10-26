@@ -13,7 +13,7 @@ function doPost(e) {
     }
 
     const ss = SpreadsheetApp.openById('1vdFqzoVsv3wb8M--91F4u-DqJnu_xPqd1MHxQ0IX414');
-    const sheet = ss.getSheetByName('Sheet1') || ss.getSheets()[0];
+    const sheet = ss.getSheetByName('Food Tracker') || ss.getSheets()[0];
 
     // Add headers if sheet is empty
     if (sheet.getLastRow() === 0) {
