@@ -24,6 +24,7 @@ function doPost(e) {
         'Sets',
         'Reps',
         'Weight (kg)',
+        'Volume (kg)',
         'Duration (s)',
         'Load (kg)',
         'Details',
@@ -45,6 +46,7 @@ function doPost(e) {
         '',
         '',
         '',
+        '', // Volume
         data.duration || '',
         data.load || '',
         data.details || '',
@@ -59,6 +61,7 @@ function doPost(e) {
         data.sets || '',
         data.reps || '',
         data.weight || '',
+        data.volume || '',
         '',
         '',
         data.details || '',

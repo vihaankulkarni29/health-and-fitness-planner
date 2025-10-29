@@ -227,6 +227,7 @@
                             <div>
                                 <h3 class="font-medium text-base text-gray-900">${workout.name}</h3>
                                 <p class="text-gray-600 mt-1">${workout.details}</p>
+                                ${workout.type === 'weight-reps' ? `<p class="text-gray-600 mt-1 font-medium">Volume: ${workout.volume} kg</p>` : ''}
                             </div>
                             <span class="text-xs text-gray-500 ml-4 flex-shrink-0">${new Date(workout.timestamp).toLocaleString()}</span>
                         </div>
@@ -295,6 +296,7 @@
                     workout.sets = sets;
                     workout.reps = reps;
                     workout.weight = weight || 0;
+                    workout.volume = (sets * reps * (weight || 0)).toFixed(2);
                 }
 
                 workouts.push(workout); // Add to the end of the array
