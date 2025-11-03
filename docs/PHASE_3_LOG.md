@@ -46,3 +46,10 @@
 *   **Step 3.30:** Generated `backend/app/api/v1/endpoints/programs.py` using Copilot.
 *   **Step 3.31:** Updated `backend/app/api/v1/api.py` to include the `programs` router.
 *   **Step 3.32:** Generated `backend/app/tests/api/v1/test_programs.py` using Copilot.
+*   **Step 3.33:** Updated `exercise` schema with `ExerciseUpdate`.
+*   **Step 3.34:** Created prompt for `Exercise` CRUD functions in `prompts/crud_exercise.md`.
+*   **Step 3.35:** Created prompt for `Exercise` API router and tests in `prompts/api_exercises.md`.
+*   **Step 3.36:** Generated `backend/app/crud/crud_exercise.py` using Copilot.
+*   **Step 3.37:** Generated `backend/app/api/v1/endpoints/exercises.py` using Copilot.
+*   **Step 3.38:** Updated `backend/app/api/v1/api.py` to include the `exercises` router.
+*   **Step 3.39:** Generated `backend/app/tests/api/v1/test_exercises.py` using Copilot.

@@ -11,6 +11,10 @@ class ExerciseBase(BaseModel):
 class ExerciseCreate(ExerciseBase):
     pass
 
+# Properties to receive on item update
+class ExerciseUpdate(ExerciseBase):
+    pass
+
 # Properties to return to client
 class Exercise(ExerciseBase):
     id: int
