@@ -9,3 +9,4 @@ class Gym(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     trainers = relationship("Trainer", back_populates="gym")
+    trainees = relationship("Trainee", back_populates="gym")
