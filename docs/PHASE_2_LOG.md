@@ -7,8 +7,8 @@
 ### To-Dos:
 
 *   [x] Get ERD information from the user.
-*   [ ] Create SQLAlchemy models for all tables.
-*   [ ] Create Pydantic schemas for all models.
+*   [x] Create SQLAlchemy models for all tables.
+*   [x] Create Pydantic schemas for all models.
 
 ---
 
@@ -30,3 +30,11 @@
 *   **Step 2.14:** Created Pydantic schemas for `HealthMetric` in `schemas/health_metric.py`.
 *   **Step 2.15:** Created SQLAlchemy model for `Exercise` in `models/exercise.py`.
 *   **Step 2.16:** Created Pydantic schemas for `Exercise` in `schemas/exercise.py`.
+*   **Step 2.17:** Created SQLAlchemy model for `ProgramExercise` in `models/program_exercise.py` and updated `Program` and `Exercise` models.
+*   **Step 2.18:** Created Pydantic schemas for `ProgramExercise` in `schemas/program_exercise.py`.
+*   **Step 2.19:** Created SQLAlchemy model for `WorkoutSession` in `models/workout_session.py` and updated `Trainee` and `Program` models.
+*   **Step 2.20:** Created Pydantic schemas for `WorkoutSession` in `schemas/workout_session.py`.
+*   **Step 2.21:** Created SQLAlchemy model for `ExerciseLog` in `models/exercise_log.py` and updated `WorkoutSession` and `Exercise` models.
+*   **Step 2.22:** Created Pydantic schemas for `ExerciseLog` in `schemas/exercise_log.py`.
+
+**Phase 2 Complete.**

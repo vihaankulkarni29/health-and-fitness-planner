@@ -13,3 +13,5 @@ class Program(Base):
 
     trainer = relationship("Trainer", back_populates="programs")
     trainees = relationship("Trainee", back_populates="program")
+    exercises = relationship("ProgramExercise", back_populates="program")
+    workout_sessions = relationship("WorkoutSession", back_populates="program")
