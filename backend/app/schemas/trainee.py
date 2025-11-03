@@ -18,6 +18,10 @@ class TraineeBase(BaseModel):
 class TraineeCreate(TraineeBase):
     pass
 
+# Properties to receive on item update
+class TraineeUpdate(TraineeBase):
+    pass
+
 # Properties to return to client
 class Trainee(TraineeBase):
     id: int

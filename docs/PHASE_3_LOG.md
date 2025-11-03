@@ -32,3 +32,10 @@
 *   **Step 3.16:** Generated `backend/app/api/v1/endpoints/trainers.py` using Copilot.
 *   **Step 3.17:** Updated `backend/app/api/v1/api.py` to include the `trainers` router.
 *   **Step 3.18:** Generated `backend/app/tests/api/v1/test_trainers.py` using Copilot.
+*   **Step 3.19:** Updated `trainee` schema with `TraineeUpdate`.
+*   **Step 3.20:** Created prompt for `Trainee` CRUD functions in `prompts/crud_trainee.md`.
+*   **Step 3.21:** Created prompt for `Trainee` API router and tests in `prompts/api_trainees.md`.
+*   **Step 3.22:** Generated `backend/app/crud/crud_trainee.py` using Copilot.
+*   **Step 3.23:** Generated `backend/app/api/v1/endpoints/trainees.py` using Copilot.
+*   **Step 3.24:** Updated `backend/app/api/v1/api.py` to include the `trainees` router.
+*   **Step 3.25:** Generated `backend/app/tests/api/v1/test_trainees.py` using Copilot.
