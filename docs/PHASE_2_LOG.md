@@ -19,3 +19,5 @@
 *   **Step 2.3:** Set up database configuration (`core/config.py`) and declarative base (`db/base_class.py`).
 *   **Step 2.4:** Created SQLAlchemy model for `Gym` in `models/gym.py`.
 *   **Step 2.5:** Created Pydantic schemas for `Gym` in `schemas/gym.py`.
+*   **Step 2.6:** Created SQLAlchemy model for `Trainer` in `models/trainer.py` and updated `Gym` model with relationship.
+*   **Step 2.7:** Created Pydantic schemas for `Trainer` in `schemas/trainer.py`.
