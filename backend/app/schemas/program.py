@@ -14,6 +14,10 @@ class ProgramCreate(ProgramBase):
     name: str
     trainer_id: int
 
+# Properties to receive on item update
+class ProgramUpdate(ProgramBase):
+    pass
+
 # Properties to return to client
 class Program(ProgramBase):
     id: int

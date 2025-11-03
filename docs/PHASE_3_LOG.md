@@ -39,3 +39,10 @@
 *   **Step 3.23:** Generated `backend/app/api/v1/endpoints/trainees.py` using Copilot.
 *   **Step 3.24:** Updated `backend/app/api/v1/api.py` to include the `trainees` router.
 *   **Step 3.25:** Generated `backend/app/tests/api/v1/test_trainees.py` using Copilot.
+*   **Step 3.26:** Updated `program` schema with `ProgramUpdate`.
+*   **Step 3.27:** Created prompt for `Program` CRUD functions in `prompts/crud_program.md`.
+*   **Step 3.28:** Created prompt for `Program` API router and tests in `prompts/api_programs.md`.
+*   **Step 3.29:** Generated `backend/app/crud/crud_program.py` using Copilot.
+*   **Step 3.30:** Generated `backend/app/api/v1/endpoints/programs.py` using Copilot.
+*   **Step 3.31:** Updated `backend/app/api/v1/api.py` to include the `programs` router.
+*   **Step 3.32:** Generated `backend/app/tests/api/v1/test_programs.py` using Copilot.
