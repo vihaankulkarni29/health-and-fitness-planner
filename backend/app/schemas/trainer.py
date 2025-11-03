@@ -14,6 +14,10 @@ class TrainerBase(BaseModel):
 class TrainerCreate(TrainerBase):
     pass
 
+# Properties to receive on item update
+class TrainerUpdate(TrainerBase):
+    pass
+
 # Properties to return to client
 class Trainer(TrainerBase):
     id: int
