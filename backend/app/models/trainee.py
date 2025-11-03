@@ -17,3 +17,4 @@ class Trainee(Base):
     gym = relationship("Gym", back_populates="trainees")
     trainer = relationship("Trainer", back_populates="trainees")
     program = relationship("Program", back_populates="trainees")
+    health_metrics = relationship("HealthMetric", back_populates="trainee")

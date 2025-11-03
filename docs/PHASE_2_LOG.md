@@ -26,3 +26,7 @@
 *   **Step 2.10:** Updated `Gym`, `Trainer`, and `Program` models with `trainee` relationships.
 *   **Step 2.11:** Created Pydantic schemas for `Program` in `schemas/program.py`.
 *   **Step 2.12:** Created Pydantic schemas for `Trainee` in `schemas/trainee.py`.
+*   **Step 2.13:** Created SQLAlchemy model for `HealthMetric` in `models/health_metric.py` and updated `Trainee` model.
+*   **Step 2.14:** Created Pydantic schemas for `HealthMetric` in `schemas/health_metric.py`.
+*   **Step 2.15:** Created SQLAlchemy model for `Exercise` in `models/exercise.py`.
+*   **Step 2.16:** Created Pydantic schemas for `Exercise` in `schemas/exercise.py`.
