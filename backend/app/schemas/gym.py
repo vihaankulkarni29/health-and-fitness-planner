@@ -11,6 +11,10 @@ class GymBase(BaseModel):
 class GymCreate(GymBase):
     pass
 
+# Properties to receive on item update
+class GymUpdate(GymBase):
+    pass
+
 # Properties to return to client
 class Gym(GymBase):
     id: int
