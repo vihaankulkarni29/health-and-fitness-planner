@@ -1,28 +1,24 @@
-from typing import Any, List, Generator
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.crud.crud_program import program as crud_program
 from app.schemas.program import Program, ProgramCreate, ProgramUpdate
-from app.db.session import SessionLocal
+from app.api.deps import get_db
+from app.auth.deps import get_current_user
+from app.models.trainee import Trainee
 
-router = APIRouter(prefix="/programs", tags=["programs"]) 
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter()  # Removed duplicate prefix
 
 
+# Protected: requires authentication
 @router.post("/", response_model=Program)
 def create_program(
     *,
     db: Session = Depends(get_db),
     program_in: ProgramCreate,
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     p = crud_program.create(db, obj_in=program_in)
     return p
@@ -49,11 +45,13 @@ def read_program(
     return p
 
 
+# Protected: requires authentication
 @router.put("/{program_id}", response_model=Program)
 def update_program(
     program_id: int,
     program_in: ProgramUpdate,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     p = crud_program.get(db, id=program_id)
     if not p:
@@ -62,10 +60,12 @@ def update_program(
     return p
 
 
+# Protected: requires authentication
 @router.delete("/{program_id}", response_model=Program)
 def delete_program(
     program_id: int,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     p = crud_program.remove(db, id=program_id)
     if not p:

@@ -13,6 +13,10 @@ class HealthMetricBase(BaseModel):
 class HealthMetricCreate(HealthMetricBase):
     pass
 
+# Properties to receive on item update
+class HealthMetricUpdate(HealthMetricBase):
+    pass
+
 # Properties to return to client
 class HealthMetric(HealthMetricBase):
     id: int

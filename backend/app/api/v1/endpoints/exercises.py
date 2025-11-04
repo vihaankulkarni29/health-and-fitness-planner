@@ -1,28 +1,24 @@
-from typing import Any, List, Generator
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.crud.crud_exercise import exercise as crud_exercise
 from app.schemas.exercise import Exercise, ExerciseCreate, ExerciseUpdate
-from app.db.session import SessionLocal
+from app.api.deps import get_db
+from app.auth.deps import get_current_user
+from app.models.trainee import Trainee
 
-router = APIRouter(prefix="/exercises", tags=["exercises"]) 
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter()  # Removed duplicate prefix 
 
 
+# Protected: requires authentication
 @router.post("/", response_model=Exercise)
 def create_exercise(
     *,
     db: Session = Depends(get_db),
     exercise_in: ExerciseCreate,
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     existing = crud_exercise.get_by_name(db, name=exercise_in.name)
     if existing:
@@ -52,11 +48,13 @@ def read_exercise(
     return e
 
 
+# Protected: requires authentication
 @router.put("/{exercise_id}", response_model=Exercise)
 def update_exercise(
     exercise_id: int,
     exercise_in: ExerciseUpdate,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     e = crud_exercise.get(db, id=exercise_id)
     if not e:
@@ -65,10 +63,12 @@ def update_exercise(
     return e
 
 
+# Protected: requires authentication
 @router.delete("/{exercise_id}", response_model=Exercise)
 def delete_exercise(
     exercise_id: int,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     e = crud_exercise.remove(db, id=exercise_id)
     if not e:

@@ -1,21 +1,15 @@
-from typing import Any, List, Generator
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.crud.crud_gym import gym as crud_gym
 from app.schemas.gym import Gym, GymCreate, GymUpdate
-from app.db.session import SessionLocal
+from app.api.deps import get_db
+from app.auth.deps import get_current_user
+from app.models.trainee import Trainee
 
-router = APIRouter(prefix="/gyms", tags=["gyms"]) 
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter() 
 
 
 @router.post("/", response_model=Gym)
@@ -23,6 +17,7 @@ def create_gym(
     *,
     db: Session = Depends(get_db),
     gym_in: GymCreate,
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     existing = crud_gym.get_by_name(db, name=gym_in.name)
     if existing:
@@ -57,6 +52,7 @@ def update_gym(
     gym_id: int,
     gym_in: GymUpdate,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     gym_obj = crud_gym.get(db, id=gym_id)
     if not gym_obj:
@@ -69,6 +65,7 @@ def update_gym(
 def delete_gym(
     gym_id: int,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     gym_obj = crud_gym.remove(db, id=gym_id)
     if not gym_obj:

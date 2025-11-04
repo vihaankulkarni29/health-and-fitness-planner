@@ -17,6 +17,10 @@ class ExerciseLogBase(BaseModel):
 class ExerciseLogCreate(ExerciseLogBase):
     pass
 
+# Properties to receive on item update
+class ExerciseLogUpdate(ExerciseLogBase):
+    pass
+
 # Properties to return to client
 class ExerciseLog(ExerciseLogBase):
     id: int

@@ -15,6 +15,10 @@ class ProgramExerciseBase(BaseModel):
 class ProgramExerciseCreate(ProgramExerciseBase):
     pass
 
+# Properties to receive on item update
+class ProgramExerciseUpdate(ProgramExerciseBase):
+    pass
+
 # Properties to return to client
 class ProgramExercise(ProgramExerciseBase):
     id: int

@@ -16,7 +16,10 @@ if BACKEND_ROOT not in sys.path:
 
 from app.main import app  # noqa: E402
 from app.db.base import Base  # noqa: E402
-from app.api.v1.endpoints.gyms import get_db as gyms_get_db  # noqa: E402
+from app.api.deps import get_db  # noqa: E402
+from app.schemas.trainee import TraineeCreate  # noqa: E402
+from app.auth.crud import create_user  # noqa: E402
+from app.core.config import settings  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -61,8 +64,47 @@ def client(db_session) -> Generator:
         finally:
             pass
 
-    app.dependency_overrides[gyms_get_db] = override_get_db
+    app.dependency_overrides[get_db] = override_get_db
     with TestClient(app) as c:
         yield c
     # Cleanup override
-    app.dependency_overrides.pop(gyms_get_db, None)
+    app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture()
+def auth_headers(client: TestClient, db_session) -> dict[str, str]:
+    """
+    Create a test user and return authentication headers with valid JWT token.
+    This fixture can be used to authenticate requests in tests.
+    """
+    # Try to create a test user, but handle the case where it already exists
+    user_in = TraineeCreate(
+        email="testuser@example.com",
+        password="testpassword123",
+        first_name="Test",
+        last_name="User",
+    )
+    
+    # Check if user already exists
+    from app.auth.crud import get_user_by_email
+    existing_user = get_user_by_email(db_session, email=user_in.email)
+    
+    if not existing_user:
+        create_user(db_session, obj_in=user_in)
+
+    # Log in to get access token
+    login_data = {
+        "username": "testuser@example.com",
+        "password": "testpassword123",
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+    )
+    
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    token_data = response.json()
+    access_token = token_data["access_token"]
+    
+    # Return headers dict with Bearer token
+    return {"Authorization": f"Bearer {access_token}"}
+

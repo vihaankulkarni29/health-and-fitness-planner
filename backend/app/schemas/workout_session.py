@@ -1,25 +1,38 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import Optional
-from .program import Program
-from .trainee import Trainee
+from typing import List, Optional
+
+from app.schemas.exercise_log import ExerciseLog
+from app.schemas.enums import WorkoutSessionStatus
 
 # Shared properties
 class WorkoutSessionBase(BaseModel):
     trainee_id: int
     program_id: int
     session_date: date
-    status: str
+    status: WorkoutSessionStatus
 
 # Properties to receive on item creation
-class WorkoutSessionCreate(WorkoutSessionBase):
-    pass
+class WorkoutSessionCreate(BaseModel):
+    trainee_id: int
+    program_id: int
 
-# Properties to return to client
-class WorkoutSession(WorkoutSessionBase):
+# Properties to receive on item update
+class WorkoutSessionUpdate(BaseModel):
+    status: Optional[WorkoutSessionStatus] = None
+
+# Properties shared by models stored in DB
+class WorkoutSessionInDBBase(WorkoutSessionBase):
     id: int
-    program: Optional[Program] = None
-    trainee: Optional[Trainee] = None
+    exercise_logs: List[ExerciseLog] = []
 
     class Config:
         orm_mode = True
+
+# Properties to return to client
+class WorkoutSession(WorkoutSessionInDBBase):
+    pass
+
+# Properties stored in DB
+class WorkoutSessionInDB(WorkoutSessionInDBBase):
+    pass

@@ -15,7 +15,8 @@ class CRUDTrainee:
         return db.query(Trainee).offset(skip).limit(limit).all()
 
     def create(self, db: Session, *, obj_in: TraineeCreate):
-        # Construct via kwargs; ignore static type checker complaints about SQLAlchemy's dynamic __init__
+        # Construct via kwargs; hash password before persisting
+        from app.auth.token import get_password_hash
         db_obj = Trainee(
             first_name=obj_in.first_name,  # type: ignore[call-arg]
             last_name=obj_in.last_name,    # type: ignore[call-arg]
@@ -23,6 +24,7 @@ class CRUDTrainee:
             gym_id=obj_in.gym_id,          # type: ignore[call-arg]
             trainer_id=obj_in.trainer_id,  # type: ignore[call-arg]
             program_id=obj_in.program_id,  # type: ignore[call-arg]
+            hashed_password=get_password_hash(obj_in.password),  # type: ignore[call-arg]
         )
         db.add(db_obj)
         db.commit()

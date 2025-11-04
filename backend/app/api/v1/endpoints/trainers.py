@@ -1,28 +1,24 @@
-from typing import Any, List, Generator
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.crud.crud_trainer import trainer as crud_trainer
 from app.schemas.trainer import Trainer, TrainerCreate, TrainerUpdate
-from app.db.session import SessionLocal
+from app.api.deps import get_db
+from app.auth.deps import get_current_user
+from app.models.trainee import Trainee
 
-router = APIRouter(prefix="/trainers", tags=["trainers"]) 
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter()  # Removed duplicate prefix
 
 
+# Protected: requires authentication
 @router.post("/", response_model=Trainer)
 def create_trainer(
     *,
     db: Session = Depends(get_db),
     trainer_in: TrainerCreate,
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     existing = crud_trainer.get_by_email(db, email=trainer_in.email)
     if existing:
@@ -52,11 +48,13 @@ def read_trainer(
     return t
 
 
+# Protected: requires authentication
 @router.put("/{trainer_id}", response_model=Trainer)
 def update_trainer(
     trainer_id: int,
     trainer_in: TrainerUpdate,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     t = crud_trainer.get(db, id=trainer_id)
     if not t:
@@ -65,10 +63,12 @@ def update_trainer(
     return t
 
 
+# Protected: requires authentication
 @router.delete("/{trainer_id}", response_model=Trainer)
 def delete_trainer(
     trainer_id: int,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     t = crud_trainer.remove(db, id=trainer_id)
     if not t:

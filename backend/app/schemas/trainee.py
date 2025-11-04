@@ -16,11 +16,16 @@ class TraineeBase(BaseModel):
 
 # Properties to receive on item creation
 class TraineeCreate(TraineeBase):
-    pass
+    password: str
 
 # Properties to receive on item update
-class TraineeUpdate(TraineeBase):
-    pass
+class TraineeUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    gym_id: Optional[int] = None
+    trainer_id: Optional[int] = None
+    program_id: Optional[int] = None
 
 # Properties to return to client
 class Trainee(TraineeBase):

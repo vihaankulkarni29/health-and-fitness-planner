@@ -9,6 +9,7 @@ class Trainee(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     gym_id = Column(Integer, ForeignKey("gyms.id"))
     trainer_id = Column(Integer, ForeignKey("trainers.id"))
     program_id = Column(Integer, ForeignKey("programs.id"))

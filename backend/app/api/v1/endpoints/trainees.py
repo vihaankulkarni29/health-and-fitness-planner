@@ -1,28 +1,25 @@
-from typing import Any, List, Generator
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.crud.crud_trainee import trainee as crud_trainee
+from app.crud.crud_program import program as crud_program
 from app.schemas.trainee import Trainee, TraineeCreate, TraineeUpdate
-from app.db.session import SessionLocal
+from app.api.deps import get_db
+from app.auth.deps import get_current_user
+from app.models.trainee import Trainee as TraineeModel
 
-router = APIRouter(prefix="/trainees", tags=["trainees"]) 
-
-
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter()  # Removed duplicate prefix
 
 
+# Protected: requires authentication
 @router.post("/", response_model=Trainee)
 def create_trainee(
     *,
     db: Session = Depends(get_db),
     trainee_in: TraineeCreate,
+    current_user: TraineeModel = Depends(get_current_user),
 ) -> Any:
     existing = crud_trainee.get_by_email(db, email=trainee_in.email)
     if existing:
@@ -52,11 +49,13 @@ def read_trainee(
     return t
 
 
+# Protected: requires authentication
 @router.put("/{trainee_id}", response_model=Trainee)
 def update_trainee(
     trainee_id: int,
     trainee_in: TraineeUpdate,
     db: Session = Depends(get_db),
+    current_user: TraineeModel = Depends(get_current_user),
 ) -> Any:
     t = crud_trainee.get(db, id=trainee_id)
     if not t:
@@ -65,10 +64,33 @@ def update_trainee(
     return t
 
 
+# Protected: requires authentication
+@router.put("/{trainee_id}/assign-program/{program_id}", response_model=Trainee)
+def assign_program_to_trainee(
+    trainee_id: int,
+    program_id: int,
+    db: Session = Depends(get_db),
+    current_user: TraineeModel = Depends(get_current_user),
+) -> Any:
+    trainee = crud_trainee.get(db, id=trainee_id)
+    if not trainee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainee not found")
+
+    program = crud_program.get(db, id=program_id)
+    if not program:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program not found")
+
+    trainee_in = TraineeUpdate(program_id=program_id)
+    trainee = crud_trainee.update(db, db_obj=trainee, obj_in=trainee_in)
+    return trainee
+
+
+# Protected: requires authentication
 @router.delete("/{trainee_id}", response_model=Trainee)
 def delete_trainee(
     trainee_id: int,
     db: Session = Depends(get_db),
+    current_user: TraineeModel = Depends(get_current_user),
 ) -> Any:
     t = crud_trainee.remove(db, id=trainee_id)
     if not t:
