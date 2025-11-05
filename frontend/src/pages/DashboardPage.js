@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Container, Typography, Box, CircularProgress, Alert, Divider, Button } from '@mui/material';
 import { me, logout } from '../api/auth';
 import ProgramCard from '../components/ProgramCard';
@@ -33,10 +33,23 @@ const DashboardPage = () => {
         fetchData();
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout();
         navigate('/login');
-    };
+    }, [navigate]);
+
+    const handleStartWorkout = useCallback(async () => {
+        if (!user || !user.program) return;
+        setStarting(true);
+        try {
+            const session = await startSession(user.id, user.program.id);
+            navigate(`/workout/${session.id}`);
+        } catch (e) {
+            setError('Failed to start workout session');
+        } finally {
+            setStarting(false);
+        }
+    }, [user, navigate]);
 
     return (
         <Container maxWidth="lg">
@@ -77,18 +90,7 @@ const DashboardPage = () => {
                                                     <Button
                                                         variant="contained"
                                                         disabled={!user || !user.program || starting}
-                                                        onClick={async () => {
-                                                            if (!user || !user.program) return;
-                                                            setStarting(true);
-                                                            try {
-                                                                const session = await startSession(user.id, user.program.id);
-                                                                navigate(`/workout/${session.id}`);
-                                                            } catch (e) {
-                                                                setError('Failed to start workout session');
-                                                            } finally {
-                                                                setStarting(false);
-                                                            }
-                                                        }}
+                                                        onClick={handleStartWorkout}
                                                     >
                                                         Start Workout
                                                     </Button>

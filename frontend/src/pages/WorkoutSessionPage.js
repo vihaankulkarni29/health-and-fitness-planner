@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, Box, CircularProgress, Alert, Button, Divider, Grid } from '@mui/material';
 import { getSession, endSession } from '../api/workouts';
@@ -45,11 +45,11 @@ const WorkoutSessionPage = () => {
         fetchSession();
     }, [sessionId]);
     
-    const handleLogCreated = (newLog) => {
+    const handleLogCreated = useCallback((newLog) => {
         setExerciseLogs(prev => [...prev, newLog]);
-    };
+    }, []);
 
-    const handleEndSession = async () => {
+    const handleEndSession = useCallback(async () => {
         setEnding(true);
         try {
             await endSession(sessionId);
@@ -59,7 +59,7 @@ const WorkoutSessionPage = () => {
         } finally {
             setEnding(false);
         }
-    };
+    }, [sessionId, navigate]);
 
     return (
         <Container maxWidth="lg">

@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
-const ExerciseLogList = ({ logs }) => {
+const ExerciseLogList = React.memo(({ logs }) => {
   if (!logs || logs.length === 0) {
     return (
       <Card sx={{ mt: 2 }}>
@@ -72,6 +72,8 @@ const ExerciseLogList = ({ logs }) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+ExerciseLogList.displayName = 'ExerciseLogList';
 
 export default ExerciseLogList;

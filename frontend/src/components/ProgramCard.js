@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, Typography, Stack } from '@mui/material';
 
-const ProgramCard = ({ program }) => {
+const ProgramCard = React.memo(({ program }) => {
   if (!program) return null;
   return (
     <Card sx={{ mt: 3 }}>
@@ -20,6 +20,8 @@ const ProgramCard = ({ program }) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+ProgramCard.displayName = 'ProgramCard';
 
 export default ProgramCard;

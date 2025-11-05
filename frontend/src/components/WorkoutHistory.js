@@ -14,7 +14,7 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PendingIcon from '@mui/icons-material/Pending';
 
-const WorkoutHistory = ({ sessions }) => {
+const WorkoutHistory = React.memo(({ sessions }) => {
   if (!sessions || sessions.length === 0) {
     return (
       <Card sx={{ mt: 2 }}>
@@ -86,6 +86,8 @@ const WorkoutHistory = ({ sessions }) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+WorkoutHistory.displayName = 'WorkoutHistory';
 
 export default WorkoutHistory;
