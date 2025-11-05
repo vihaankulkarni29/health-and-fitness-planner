@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import WorkoutSessionPage from './pages/WorkoutSessionPage';
+import HealthMetricsPage from './pages/HealthMetricsPage';
 import RequireAuth from './components/RequireAuth';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -26,6 +27,14 @@ function App() {
                         element={
                             <RequireAuth>
                                 <WorkoutSessionPage />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/health-metrics"
+                        element={
+                            <RequireAuth>
+                                <HealthMetricsPage />
                             </RequireAuth>
                         }
                     />

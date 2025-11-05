@@ -1,6 +1,12 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Enum
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.db.base_class import Base
+import enum
+
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    TRAINER = "trainer"
+    TRAINEE = "trainee"
 
 class Trainee(Base):
     __tablename__ = 'trainees'
@@ -14,6 +20,7 @@ class Trainee(Base):
     trainer_id = Column(Integer, ForeignKey("trainers.id"))
     program_id = Column(Integer, ForeignKey("programs.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.TRAINEE, nullable=False)
 
     gym = relationship("Gym", back_populates="trainees")
     trainer = relationship("Trainer", back_populates="trainees")

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Container, Typography, Box, CircularProgress, Alert, Divider, Button } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Alert, Divider, Button, Stack } from '@mui/material';
 import { me, logout } from '../api/auth';
 import ProgramCard from '../components/ProgramCard';
 import WorkoutHistory from '../components/WorkoutHistory';
 import { startSession, getSessions } from '../api/workouts';
 import { useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 
 const DashboardPage = () => {
     const [user, setUser] = useState(null);
@@ -66,14 +67,23 @@ const DashboardPage = () => {
                             <Typography component="h1" variant="h4">
                                 Dashboard
                             </Typography>
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                startIcon={<LogoutIcon />}
-                                onClick={handleLogout}
-                            >
-                                Logout
-                            </Button>
+                            <Stack direction="row" spacing={2}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<MonitorHeartIcon />}
+                                    onClick={() => navigate('/health-metrics')}
+                                >
+                                    Health Metrics
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    startIcon={<LogoutIcon />}
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </Button>
+                            </Stack>
                         </Box>
                         <Typography variant="body1" sx={{ mt: 2 }}>
                             Welcome{user ? `, ${user.first_name} ${user.last_name}` : ''}! This page will show your program and workouts.

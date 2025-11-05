@@ -9,6 +9,17 @@ class CRUDHealthMetric:
     def get_multi(self, db: Session, skip: int = 0, limit: int = 100):
         return db.query(HealthMetric).offset(skip).limit(limit).all()
 
+    def get_by_trainee(self, db: Session, *, trainee_id: int, skip: int = 0, limit: int = 100):
+        """Get health metrics for a specific trainee, ordered by most recent first."""
+        return (
+            db.query(HealthMetric)
+            .filter(HealthMetric.trainee_id == trainee_id)
+            .order_by(HealthMetric.recorded_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
     def create(self, db: Session, *, obj_in: HealthMetricCreate):
         db_obj = HealthMetric(
             trainee_id=obj_in.trainee_id,

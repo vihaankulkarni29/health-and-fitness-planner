@@ -13,6 +13,22 @@ router = APIRouter()  # Removed duplicate prefix
 
 
 # Protected: requires authentication
+@router.get("/me", response_model=List[HealthMetric])
+def read_my_health_metrics(
+    *,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: Trainee = Depends(get_current_user),
+) -> Any:
+    """Get health metrics for the current logged-in user."""
+    health_metrics = crud_health_metric.get_by_trainee(
+        db, trainee_id=current_user.id, skip=skip, limit=limit
+    )
+    return health_metrics
+
+
+# Protected: requires authentication
 @router.post("/", response_model=HealthMetric)
 def create_health_metric(
     *,
