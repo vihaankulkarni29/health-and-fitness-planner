@@ -6,20 +6,21 @@ from sqlalchemy.orm import Session
 from app.crud.crud_trainer import trainer as crud_trainer
 from app.schemas.trainer import Trainer, TrainerCreate, TrainerUpdate
 from app.api.deps import get_db
-from app.auth.deps import get_current_user
+from app.auth.deps import get_current_user, require_admin
 from app.models.trainee import Trainee
 
 router = APIRouter()  # Removed duplicate prefix
 
 
-# Protected: requires authentication
+# Protected: requires admin role (only admins can create trainers)
 @router.post("/", response_model=Trainer)
 def create_trainer(
     *,
     db: Session = Depends(get_db),
     trainer_in: TrainerCreate,
-    current_user: Trainee = Depends(get_current_user),
+    current_user: Trainee = Depends(require_admin),
 ) -> Any:
+    """Create new trainer. Requires admin role."""
     existing = crud_trainer.get_by_email(db, email=trainer_in.email)
     if existing:
         raise HTTPException(status_code=400, detail="Trainer with this email already exists")
@@ -27,35 +28,40 @@ def create_trainer(
     return t
 
 
+# Public: anyone can list trainers (for trainee to see available trainers)
 @router.get("/", response_model=List[Trainer])
 def read_trainers(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
 ) -> Any:
+    """Retrieve trainers list. Public endpoint."""
     trainers = crud_trainer.get_multi(db, skip=skip, limit=limit)
     return trainers
 
 
+# Public: anyone can view trainer details
 @router.get("/{trainer_id}", response_model=Trainer)
 def read_trainer(
     trainer_id: int,
     db: Session = Depends(get_db),
 ) -> Any:
+    """Get trainer by ID. Public endpoint."""
     t = crud_trainer.get(db, id=trainer_id)
     if not t:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainer not found")
     return t
 
 
-# Protected: requires authentication
+# Protected: requires admin role (only admins can update trainers)
 @router.put("/{trainer_id}", response_model=Trainer)
 def update_trainer(
     trainer_id: int,
     trainer_in: TrainerUpdate,
     db: Session = Depends(get_db),
-    current_user: Trainee = Depends(get_current_user),
+    current_user: Trainee = Depends(require_admin),
 ) -> Any:
+    """Update trainer. Requires admin role."""
     t = crud_trainer.get(db, id=trainer_id)
     if not t:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainer not found")
@@ -63,13 +69,14 @@ def update_trainer(
     return t
 
 
-# Protected: requires authentication
+# Protected: requires admin role (only admins can delete trainers)
 @router.delete("/{trainer_id}", response_model=Trainer)
 def delete_trainer(
     trainer_id: int,
     db: Session = Depends(get_db),
-    current_user: Trainee = Depends(get_current_user),
+    current_user: Trainee = Depends(require_admin),
 ) -> Any:
+    """Delete trainer. Requires admin role."""
     t = crud_trainer.remove(db, id=trainer_id)
     if not t:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainer not found")
