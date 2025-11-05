@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import WorkoutSessionPage from './pages/WorkoutSessionPage';
 import RequireAuth from './components/RequireAuth';
 
 function App() {
@@ -18,7 +19,14 @@ function App() {
                         </RequireAuth>
                     }
                 />
-                {/* Add other routes here later */}
+                <Route
+                    path="/workout/:sessionId"
+                    element={
+                        <RequireAuth>
+                            <WorkoutSessionPage />
+                        </RequireAuth>
+                    }
+                />
             </Routes>
         </Router>
     );
