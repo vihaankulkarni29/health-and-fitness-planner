@@ -7,6 +7,7 @@ import { startSession, getSessions } from '../api/workouts';
 import { useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import PersonIcon from '@mui/icons-material/Person';
 
 const DashboardPage = () => {
     const [user, setUser] = useState(null);
@@ -68,6 +69,13 @@ const DashboardPage = () => {
                                 Dashboard
                             </Typography>
                             <Stack direction="row" spacing={2}>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<PersonIcon />}
+                                    onClick={() => navigate('/profile')}
+                                >
+                                    Profile
+                                </Button>
                                 <Button
                                     variant="outlined"
                                     startIcon={<MonitorHeartIcon />}

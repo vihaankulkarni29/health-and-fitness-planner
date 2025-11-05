@@ -120,6 +120,12 @@ const HealthMetricsPage = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 8, mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
+          <Button variant="text" onClick={() => window.history.back()}>
+            ← Back
+          </Button>
+        </Box>
+        
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h4" component="h1">
             Health Metrics

@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import WorkoutSessionPage from './pages/WorkoutSessionPage';
 import HealthMetricsPage from './pages/HealthMetricsPage';
+import ProfilePage from './pages/ProfilePage';
 import RequireAuth from './components/RequireAuth';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -35,6 +36,14 @@ function App() {
                         element={
                             <RequireAuth>
                                 <HealthMetricsPage />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <RequireAuth>
+                                <ProfilePage />
                             </RequireAuth>
                         }
                     />
