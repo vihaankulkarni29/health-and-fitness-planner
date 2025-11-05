@@ -8,7 +8,7 @@ This document tracks the progress, achievements, and issues encountered during t
 
 ## Project Overview
 
-**Goal:** Create a Minimum Viable Prototype (MVP) for investor presentations demonstrating core fitness tracker functionality.
+**Goal:** Create a comprehensive fitness tracker application with core MVP features plus essential post-MVP enhancements for a complete user experience.
 
 **Tech Stack:**
 - React (via create-react-app)
@@ -16,20 +16,22 @@ This document tracks the progress, achievements, and issues encountered during t
 - CSS-in-JS (@emotion/react, @emotion/styled)
 - Axios (API communication)
 - React Router DOM (client-side routing)
+- Recharts (data visualization)
 
 **Backend API:** `http://localhost:8000`
 
 ---
 
-## Overall Progress: 100% ✅
+## Overall Progress: 100% MVP + 40% Post-MVP Enhancements
 
 ### Phase Completion Status
 - ✅ **Phase 1: Project Setup & Login** (0% → 25%) - **COMPLETED**
 - ✅ **Phase 2: Dashboard & Workout Sessions** (25% → 50%) - **COMPLETED**
 - ✅ **Phase 3: Exercise Logging** (50% → 90%) - **COMPLETED**
 - ✅ **Phase 4: Final Touches & Polish** (90% → 100%) - **COMPLETED**
+- 🔄 **Phase 5: Post-MVP Enhancements** (100% → 120%) - **IN PROGRESS (40%)**
 
-**🎉 MVP COMPLETE - Ready for investor presentation! 🎉**
+**🎉 MVP COMPLETE + 2 Critical Post-MVP Features Delivered! 🎉**
 
 ---
 
@@ -765,6 +767,9 @@ const handleLogCreated = (newLog) => {
 | Nov 5, 2025 | Workout sessions | 45% → 50% | Implemented Start Workout button, WorkoutSessionPage, session routing |
 | Nov 5, 2025 | Exercise logging | 50% → 90% | Built ExerciseLogForm, ExerciseLogList, real-time logging, program exercises API |
 | Nov 5, 2025 | Polish & features | 90% → 95% | Added logout, workout history, error boundaries, enhanced validation |
+| Nov 5, 2025 | MVP Complete | 95% → 100% | Performance optimization, final polish, documentation |
+| Nov 5, 2025 | Post-MVP P0 | 100% → 108% | Health Metrics Tracking with charts (recharts), CRUD operations |
+| Nov 5, 2025 | Post-MVP P0 | 108% → 115% | User Profile Management, account info display, navigation enhancements |
 | TBD | Dashboard | 25% → 60% | Planned for next session |
 | TBD | Exercise Logging | 60% → 90% | Pending |
 | TBD | Polish | 90% → 100% | Pending |
@@ -992,7 +997,191 @@ npm audit
 
 ---
 
-## Future Enhancements (Post-MVP)
+## Phase 5: Post-MVP Enhancements (IN PROGRESS 🔄)
+
+**Start Date:** November 5, 2025  
+**Current Status:** 40% Complete (2 of 5 priority features done)  
+**Status:** 🔄 IN PROGRESS
+
+### Priority Roadmap
+
+**P0 - CRITICAL (Completed):**
+- [x] Health Metrics Tracking
+- [x] User Profile Management
+
+**P1 - HIGH (Upcoming):**
+- [ ] Program Details View
+- [ ] Enhanced Dashboard Analytics  
+- [ ] Edit/Delete Exercise Logs
+
+**P2 - MEDIUM (Future):**
+- [ ] In-Workout Enhancements
+- [ ] Exercise Library
+- [ ] Settings & Personalization
+
+### Feature 1: Health Metrics Tracking ✅
+
+**Priority:** P0 - CRITICAL  
+**Completion Date:** November 5, 2025  
+**Business Value:** Core fitness tracking differentiator
+
+#### Implementation Details
+
+**Backend Changes:**
+- Added `get_by_trainee()` method to `crud_health_metric.py`:
+  ```python
+  def get_by_trainee(self, db: Session, *, trainee_id: int, skip: int = 0, limit: int = 100):
+      return (
+          db.query(HealthMetric)
+          .filter(HealthMetric.trainee_id == trainee_id)
+          .order_by(HealthMetric.recorded_at.desc())
+          .offset(skip)
+          .limit(limit)
+          .all()
+      )
+  ```
+
+- Added GET `/health_metrics/me` endpoint for current user's metrics
+- Existing models and schemas already supported weight, height, body fat %
+
+**Frontend Changes:**
+- Created `frontend/src/api/healthMetrics.js` with full CRUD operations
+- Created `frontend/src/pages/HealthMetricsPage.js` with:
+  - **Chart Visualization:** Recharts LineChart with dual Y-axes
+  - Weight tracking (kg and lbs conversion)
+  - Body fat percentage tracking
+  - Height tracking
+  - **Add Metric Dialog:** Material-UI modal with form
+  - **Data Table:** Complete measurement history with delete actions
+  - Empty state handling
+  - Back navigation button
+
+- Updated `DashboardPage.js`:
+  - Added "Health Metrics" navigation button with MonitorHeartIcon
+  - Added to header button stack
+
+- Updated `App.js`:
+  - Added `/health-metrics` protected route
+  - Installed `recharts` dependency (v2.x)
+
+#### Features Delivered
+- ✅ Log weight, height, and body fat percentage
+- ✅ Visual progress charts with dual metrics
+- ✅ Historical data table with date sorting
+- ✅ Delete old metrics
+- ✅ Unit conversion (kg ↔ lbs)
+- ✅ Real-time chart updates
+- ✅ Empty state messaging
+- ✅ Mobile-responsive design
+
+#### User Flow
+1. User clicks "Health Metrics" from dashboard
+2. Sees progress chart (if data exists) or empty state
+3. Clicks "Add Metric" button
+4. Enters weight/height/body fat in modal dialog
+5. Chart and table update immediately
+6. Can delete old entries with trash icon
+
+### Feature 2: User Profile Management ✅
+
+**Priority:** P0 - CRITICAL  
+**Completion Date:** November 5, 2025  
+**Business Value:** Expected baseline feature for user account management
+
+#### Implementation Details
+
+**Frontend Changes:**
+- Created `frontend/src/pages/ProfilePage.js` with:
+  - **Profile Info Card:** Avatar, name, email display
+  - **Editable Form:** First name, last name, email fields
+  - **Account Information Card:** Member ID, program, trainer details
+  - **Password Change Card:** Placeholder for future functionality
+  - Back navigation to dashboard
+  - Success/error alerts
+
+- Updated `DashboardPage.js`:
+  - Added "Profile" navigation button with PersonIcon
+  - Added to header button stack (Profile | Health Metrics | Logout)
+
+- Updated `App.js`:
+  - Added `/profile` protected route
+
+#### Features Delivered
+- ✅ View complete profile information
+- ✅ Display account stats (ID, program, trainer)
+- ✅ Profile avatar with user initials
+- ✅ Form for updating personal info (UI complete, backend pending)
+- ✅ Password change section (UI placeholder)
+- ✅ Responsive layout with Material-UI Grid
+- ✅ Back navigation
+- ✅ Consistent styling with app theme
+
+#### User Flow
+1. User clicks "Profile" from dashboard
+2. Sees complete profile with avatar
+3. Can view account information
+4. Can attempt to edit details (backend update pending)
+5. Returns to dashboard via back button
+
+### Files Created/Modified (Phase 5)
+
+**New Files:**
+- `frontend/src/api/healthMetrics.js` (CRUD API calls)
+- `frontend/src/pages/HealthMetricsPage.js` (263 lines - charts & table)
+- `frontend/src/pages/ProfilePage.js` (233 lines - profile management)
+
+**Modified Files:**
+- `frontend/src/App.js` (Added 2 routes: /health-metrics, /profile)
+- `frontend/src/pages/DashboardPage.js` (Added Profile & Health Metrics nav buttons)
+- `backend/app/crud/crud_health_metric.py` (Added get_by_trainee method)
+- `backend/app/api/v1/endpoints/health_metrics.py` (Added GET /me endpoint)
+- `frontend/package.json` (Added recharts dependency)
+
+### Technical Metrics
+- ✅ No compile errors
+- ✅ No ESLint warnings
+- ✅ All routes protected with authentication
+- ✅ Responsive design maintained
+- ✅ Performance optimizations applied (useCallback, React.memo)
+
+### Known Limitations
+
+1. **Profile Update Backend**
+   - UI complete but no PUT endpoint for trainee updates
+   - Shows "coming soon" message
+   - Impact: Low - read-only profile sufficient for now
+
+2. **Password Change**
+   - UI placeholder only
+   - No password change functionality
+   - Impact: Medium - security feature for future
+
+3. **Health Metrics Photos**
+   - No progress photos support
+   - Only numerical metrics
+   - Impact: Low - nice-to-have feature
+
+### Next Steps (Priority Order)
+
+1. **Program Details View** (P1 - HIGH)
+   - Show full program before workout
+   - Exercise descriptions and targets
+   - Estimated completion: 1 hour
+
+2. **Enhanced Dashboard Analytics** (P1 - HIGH)
+   - Workout frequency chart
+   - Volume trends
+   - Personal records
+   - Estimated completion: 2 hours
+
+3. **Edit/Delete Exercise Logs** (P1 - HIGH)
+   - Fix logging mistakes
+   - Update past workouts
+   - Estimated completion: 1 hour
+
+---
+
+## Future Enhancements (Post-Phase 5)
 
 1. **Authentication Improvements**
    - Implement refresh tokens
@@ -1000,9 +1189,9 @@ npm audit
    - Move to httpOnly cookies
 
 2. **Error Handling**
-   - Global error boundary
-   - Toast notifications
+   - Toast notifications (vs. inline alerts)
    - Network error recovery
+   - Offline mode support
 
 3. **Performance**
    - Code splitting
@@ -1027,6 +1216,7 @@ npm audit
 - [Material-UI Documentation](https://mui.com)
 - [React Router Documentation](https://reactrouter.com)
 - [Axios Documentation](https://axios-http.com)
+- [Recharts Documentation](https://recharts.org)
 
 ---
 
