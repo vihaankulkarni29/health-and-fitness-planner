@@ -21,12 +21,12 @@ This document tracks the progress, achievements, and issues encountered during t
 
 ---
 
-## Overall Progress: 50%
+## Overall Progress: 90%
 
 ### Phase Completion Status
 - ✅ **Phase 1: Project Setup & Login** (0% → 25%) - **COMPLETED**
 - ✅ **Phase 2: Dashboard & Workout Sessions** (25% → 50%) - **COMPLETED**
-- ⏳ **Phase 3: Exercise Logging** (50% → 90%) - **NOT STARTED**
+- ✅ **Phase 3: Exercise Logging** (50% → 90%) - **COMPLETED**
 - ⏳ **Phase 4: Final Touches & Polish** (90% → 100%) - **NOT STARTED**
 
 ---
@@ -488,7 +488,214 @@ client.interceptors.request.use((config) => {
 
 ---
 
-## Phase 3: Exercise Logging (NOT STARTED)
+## Phase 3: Exercise Logging (COMPLETED ✅)
+
+**Start Date:** November 5, 2025  
+**Completion Date:** November 5, 2025  
+**Duration:** ~45 minutes  
+**Status:** ✅ COMPLETED
+
+### Objectives
+- [x] Fetch program exercises for active workout session
+- [x] Create form component for logging sets, reps, and weight
+- [x] Display list of logged exercises with details
+- [x] Integrate logging UI into WorkoutSessionPage
+- [x] Add real-time updates when exercises are logged
+
+### Actions Taken
+
+#### 1. Program API Module
+**File:** `frontend/src/api/programs.js`
+
+**Functions:**
+- `getProgramExercises(programId)` - Fetch exercises for a program
+- `getProgramExercisesByProgram(programId)` - Fallback method using filtering
+
+**Purpose:**
+- Retrieve program exercises to display in workout session
+- Enables users to see which exercises to log
+
+#### 2. ExerciseLogForm Component
+**File:** `frontend/src/components/ExerciseLogForm.js`
+
+**Features:**
+- Material-UI Card layout with form inputs
+- Three input fields: Sets, Reps, Weight (lbs)
+- Displays target sets/reps from program exercise
+- Form validation with required fields
+- Submit handler that calls `logExercise()` API
+- Clears form after successful submission
+- Callback to parent component on log creation
+- Loading state during submission
+- Error handling with Alert display
+
+**UI Elements:**
+- TextField inputs for sets, reps, weight
+- Number type inputs with min constraints
+- Submit button with disabled state
+- Exercise name as card title
+- Target reps/sets as subtitle
+
+**Code Flow:**
+1. User enters sets, reps, weight
+2. Form validates inputs
+3. Calls `logExercise(sessionId, logData)` API
+4. Clears form on success
+5. Notifies parent via `onLogCreated` callback
+6. Parent adds new log to state → real-time UI update
+
+#### 3. ExerciseLogList Component
+**File:** `frontend/src/components/ExerciseLogList.js`
+
+**Features:**
+- Material-UI Card with List layout
+- FitnessCenterIcon header
+- Displays count of logged exercises
+- Each log shows: Exercise name, sets × reps, weight
+- Chips for sets/reps and weight values
+- Timestamp for each logged exercise
+- Empty state message when no logs exist
+- Dividers between list items
+
+**UI Elements:**
+- ListItem for each exercise log
+- Chip components for visual data display
+- Color-coded chips (primary for sets/reps, secondary for weight)
+- Responsive layout
+
+#### 4. Enhanced WorkoutSessionPage
+**File:** `frontend/src/pages/WorkoutSessionPage.js`
+
+**New Features:**
+- Fetches program exercises on session load
+- State management for `programExercises` and `exerciseLogs`
+- Grid layout for exercise log forms (2 columns on desktop)
+- ExerciseLogForm for each program exercise
+- Real-time log list update via `handleLogCreated` callback
+- Displays logged exercises immediately after submission
+
+**State Management:**
+```javascript
+const [programExercises, setProgramExercises] = useState([]);
+const [exerciseLogs, setExerciseLogs] = useState([]);
+
+const handleLogCreated = (newLog) => {
+  setExerciseLogs(prev => [...prev, newLog]);
+};
+```
+
+**UI Layout:**
+- Session info at top
+- Exercise forms in grid (responsive)
+- Logged exercises list at bottom
+- End Workout and Back buttons
+
+#### 5. Real-Time Updates
+**Implementation:**
+- Parent component maintains exercise logs state
+- Child ExerciseLogForm calls parent callback on submission
+- Parent adds new log to state array
+- ExerciseLogList re-renders with updated logs
+- No page refresh required
+- Immediate visual feedback
+
+**Benefits:**
+- Better user experience
+- Instant confirmation of logged exercises
+- Tracks progress during workout
+- No data loss on form submission
+
+### Files Created/Modified
+
+**New Files:**
+1. `frontend/src/api/programs.js` - Program exercises API functions
+2. `frontend/src/components/ExerciseLogForm.js` - Exercise logging form
+3. `frontend/src/components/ExerciseLogList.js` - Logged exercises display
+
+**Modified Files:**
+1. `frontend/src/pages/WorkoutSessionPage.js` - Added exercise logging UI
+2. `docs/UI_UX_PROGRESS.md` - Updated progress to 90%
+
+### Testing Status
+
+**Manual Testing Required:**
+- [ ] Load workout session page
+- [ ] Verify program exercises display
+- [ ] Fill out exercise log form
+- [ ] Submit exercise log
+- [ ] Verify log appears in list immediately
+- [ ] Log multiple exercises
+- [ ] End workout session
+- [ ] Return to dashboard
+
+**Edge Cases:**
+- [ ] Session with no program exercises
+- [ ] Multiple logs for same exercise
+- [ ] Invalid input values (negative numbers)
+- [ ] Network errors during submission
+
+### Code Quality Metrics
+
+**ESLint:** ✅ No errors in new files
+**Compile Errors:** ✅ None
+**Component Structure:** ✅ Clean and reusable
+**State Management:** ✅ Proper React hooks usage
+
+### Known Issues & Limitations
+
+1. **Exercise Icons**
+   - **Issue:** Using FitnessCenterIcon for all exercises
+   - **Impact:** Low - visual only
+   - **Status:** Acceptable for MVP
+   - **Future:** Add exercise-specific icons
+
+2. **No Edit/Delete Logs**
+   - **Issue:** Can't edit or delete logged exercises
+   - **Impact:** Medium - user might make mistakes
+   - **Status:** Planned for Phase 4
+   - **Workaround:** Users can log corrected entries
+
+3. **No Log Validation Against Target**
+   - **Issue:** Doesn't check if user met target sets/reps
+   - **Impact:** Low - informational feature
+   - **Status:** Future enhancement
+   - **Note:** Target is displayed for reference
+
+4. **Weight Unit Fixed to lbs**
+   - **Issue:** No kg option
+   - **Impact:** Low for US users
+   - **Status:** Future feature
+   - **Note:** Can add unit selector in Phase 4
+
+### User Flow (Complete)
+
+1. **Login** → Dashboard
+2. **View Program** → See assigned program card
+3. **Start Workout** → Creates session, navigates to /workout/:id
+4. **See Exercises** → Grid of exercise log forms
+5. **Log Exercise** → Fill sets, reps, weight → Submit
+6. **Instant Feedback** → Log appears in list below
+7. **Continue Logging** → Log more exercises
+8. **End Workout** → Mark session complete
+9. **Return to Dashboard** → Ready for next workout
+
+### Next Steps (Phase 4)
+
+**Polish & Enhancements:**
+1. Add loading indicators for all API calls
+2. Implement error boundaries
+3. Add logout functionality
+4. Display workout history on dashboard
+5. Add edit/delete for exercise logs
+6. Improve responsive design
+7. Add keyboard shortcuts
+8. Implement toast notifications
+9. Add exercise images/animations
+10. Performance optimization
+
+---
+
+## Phase 4: Final Touches & Polish (NOT STARTED)
 
 **Target Progress:** 60% → 90%  
 **Status:** ⏳ Not Started
@@ -554,6 +761,7 @@ client.interceptors.request.use((config) => {
 | Nov 4, 2025 | Backend setup | 35% → 40% | Switched to SQLite for dev, changed hashing to pbkdf2_sha256, seeded test user, backend running |
 | Nov 5, 2025 | Dashboard data | 40% → 45% | Added ProgramCard and dashboard program display via /auth/me |
 | Nov 5, 2025 | Workout sessions | 45% → 50% | Implemented Start Workout button, WorkoutSessionPage, session routing |
+| Nov 5, 2025 | Exercise logging | 50% → 90% | Built ExerciseLogForm, ExerciseLogList, real-time logging, program exercises API |
 | TBD | Dashboard | 25% → 60% | Planned for next session |
 | TBD | Exercise Logging | 60% → 90% | Pending |
 | TBD | Polish | 90% → 100% | Pending |

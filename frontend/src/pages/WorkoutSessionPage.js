@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, CircularProgress, Alert, Button, Divider } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Alert, Button, Divider, Grid } from '@mui/material';
 import { getSession, endSession } from '../api/workouts';
+import { getProgramExercisesByProgram } from '../api/programs';
+import ExerciseLogForm from '../components/ExerciseLogForm';
+import ExerciseLogList from '../components/ExerciseLogList';
 
 const WorkoutSessionPage = () => {
     const { sessionId } = useParams();
     const navigate = useNavigate();
     const [session, setSession] = useState(null);
+    const [programExercises, setProgramExercises] = useState([]);
+    const [exerciseLogs, setExerciseLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [ending, setEnding] = useState(false);
@@ -16,6 +21,21 @@ const WorkoutSessionPage = () => {
             try {
                 const data = await getSession(sessionId);
                 setSession(data);
+                
+                // Fetch program exercises if program exists
+                if (data.program_id) {
+                    try {
+                        const exercises = await getProgramExercisesByProgram(data.program_id);
+                        setProgramExercises(exercises);
+                    } catch (err) {
+                        console.error('Failed to fetch program exercises:', err);
+                    }
+                }
+                
+                // Set existing exercise logs if any
+                if (data.exercise_logs) {
+                    setExerciseLogs(data.exercise_logs);
+                }
             } catch (e) {
                 setError('Failed to load workout session');
             } finally {
@@ -24,6 +44,10 @@ const WorkoutSessionPage = () => {
         };
         fetchSession();
     }, [sessionId]);
+    
+    const handleLogCreated = (newLog) => {
+        setExerciseLogs(prev => [...prev, newLog]);
+    };
 
     const handleEndSession = async () => {
         setEnding(true);
@@ -68,10 +92,29 @@ const WorkoutSessionPage = () => {
                         
                         <Divider sx={{ my: 3 }} />
                         
-                        <Typography variant="h6">Exercises</Typography>
-                        <Alert severity="info" sx={{ mt: 2 }}>
-                            Exercise logging interface will be implemented in Phase 3.
-                        </Alert>
+                        <Typography variant="h6" gutterBottom>Exercises</Typography>
+                        
+                        {programExercises.length > 0 ? (
+                            <Grid container spacing={2}>
+                                {programExercises.map((programExercise) => (
+                                    <Grid item xs={12} md={6} key={programExercise.id}>
+                                        <ExerciseLogForm
+                                            exercise={programExercise}
+                                            sessionId={sessionId}
+                                            onLogCreated={handleLogCreated}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            <Alert severity="info" sx={{ mt: 2 }}>
+                                No exercises found for this program.
+                            </Alert>
+                        )}
+                        
+                        <Divider sx={{ my: 3 }} />
+                        
+                        <ExerciseLogList logs={exerciseLogs} />
 
                         <Box sx={{ mt: 4 }}>
                             <Button
