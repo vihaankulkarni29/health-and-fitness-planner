@@ -16,6 +16,26 @@ from app.models.trainee import Trainee
 router = APIRouter()  # Removed duplicate prefix
 
 # Protected: requires authentication
+@router.get("/", response_model=list[WorkoutSession])
+def read_workout_sessions(
+    *,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: Trainee = Depends(get_current_user),
+) -> Any:
+    """
+    Retrieve workout sessions for the current user.
+    
+    Returns sessions ordered by session_date descending (most recent first).
+    """
+    sessions = crud_workout_session.get_multi_by_trainee(
+        db, trainee_id=current_user.id, skip=skip, limit=limit
+    )
+    return sessions
+
+
+# Protected: requires authentication
 @router.post("/start", response_model=WorkoutSession)
 def start_workout_session(
     *,

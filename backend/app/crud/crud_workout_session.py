@@ -30,6 +30,19 @@ class CRUDWorkoutSession:
         # NOTE: Consider using joinedload for trainee/program if needed to reduce N+1 queries.
         return db.query(WorkoutSession).offset(skip).limit(limit).all()
 
+    def get_multi_by_trainee(
+        self, db: Session, *, trainee_id: int, skip: int = 0, limit: int = 100
+    ):
+        """Get all workout sessions for a specific trainee, ordered by date descending."""
+        return (
+            db.query(WorkoutSession)
+            .filter(WorkoutSession.trainee_id == trainee_id)
+            .order_by(WorkoutSession.session_date.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
     def create(
         self,
         db: Session,

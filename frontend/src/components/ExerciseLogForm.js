@@ -7,7 +7,8 @@ import {
   Typography,
   Box,
   Alert,
-  Stack
+  Stack,
+  CircularProgress
 } from '@mui/material';
 
 const ExerciseLogForm = ({ exercise, sessionId, onLogCreated }) => {
@@ -15,24 +16,40 @@ const ExerciseLogForm = ({ exercise, sessionId, onLogCreated }) => {
   const [reps, setReps] = useState('');
   const [weight, setWeight] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
     setSubmitting(true);
 
     try {
+      // Validate inputs
+      const setsNum = parseInt(sets);
+      const repsNum = parseInt(reps);
+      const weightNum = parseFloat(weight);
+
+      if (setsNum <= 0 || repsNum <= 0 || weightNum < 0) {
+        setError('Please enter valid positive numbers');
+        setSubmitting(false);
+        return;
+      }
+
       const logData = {
         exercise_id: exercise.exercise_id || exercise.exercise?.id,
-        sets: parseInt(sets) || 0,
-        reps: parseInt(reps) || 0,
-        weight: parseFloat(weight) || 0
+        sets: setsNum,
+        reps: repsNum,
+        weight: weightNum
       };
 
       // Import dynamically to avoid circular dependency
       const { logExercise } = await import('../api/workouts');
       const newLog = await logExercise(sessionId, logData);
+      
+      // Show success
+      setSuccess(true);
       
       // Clear form
       setSets('');
@@ -43,6 +60,9 @@ const ExerciseLogForm = ({ exercise, sessionId, onLogCreated }) => {
       if (onLogCreated) {
         onLogCreated(newLog);
       }
+
+      // Clear success message after 2 seconds
+      setTimeout(() => setSuccess(false), 2000);
     } catch (err) {
       setError('Failed to log exercise. Please try again.');
     } finally {
@@ -63,6 +83,7 @@ const ExerciseLogForm = ({ exercise, sessionId, onLogCreated }) => {
         )}
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>Exercise logged successfully!</Alert>}
         
         <Box component="form" onSubmit={handleSubmit}>
           <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -97,8 +118,9 @@ const ExerciseLogForm = ({ exercise, sessionId, onLogCreated }) => {
           <Button
             type="submit"
             variant="contained"
-            disabled={submitting}
+            disabled={submitting || !sets || !reps || !weight}
             fullWidth
+            startIcon={submitting ? <CircularProgress size={20} /> : null}
           >
             {submitting ? 'Logging...' : 'Log Exercise'}
           </Button>

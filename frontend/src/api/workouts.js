@@ -1,5 +1,10 @@
 import client from './client';
 
+export async function getSessions() {
+  const { data } = await client.get('/workout_sessions/');
+  return data; // WorkoutSession[]
+}
+
 export async function startSession(trainee_id, program_id) {
   const payload = { trainee_id, program_id };
   const { data } = await client.post('/workout_sessions/start', payload);
