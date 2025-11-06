@@ -5,7 +5,7 @@ from .exercise import Exercise
 
 # Shared properties
 class ExerciseLogBase(BaseModel):
-    session_id: int
+    session_id: Optional[int] = None
     exercise_id: int
     completed_sets: Optional[int] = None
     completed_reps: Optional[int] = None
@@ -18,8 +18,14 @@ class ExerciseLogCreate(ExerciseLogBase):
     pass
 
 # Properties to receive on item update
-class ExerciseLogUpdate(ExerciseLogBase):
-    pass
+class ExerciseLogUpdate(BaseModel):
+    session_id: Optional[int] = None
+    exercise_id: Optional[int] = None
+    completed_sets: Optional[int] = None
+    completed_reps: Optional[int] = None
+    completed_weight_kg: Optional[float] = None
+    volume_kg: Optional[float] = None
+    is_completed: Optional[bool] = None
 
 # Properties to return to client
 class ExerciseLog(ExerciseLogBase):

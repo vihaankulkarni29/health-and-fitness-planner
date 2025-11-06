@@ -26,13 +26,13 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     user = auth_crud.get_user_by_email(db, email=form_data.username)
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    # Cast to Any to avoid SQLAlchemy type checker issues on InstrumentedAttribute
-    from typing import Any as _Any
-    _user: _Any = user
-    if not auth_token.verify_password(form_data.password, _user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not user or not auth_token.verify_password(
+        form_data.password, user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=401, detail="Incorrect email or password"
+        )
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
         "access_token": auth_token.create_access_token(

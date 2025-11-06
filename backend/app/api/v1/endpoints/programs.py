@@ -76,7 +76,19 @@ def delete_program(
     current_user: Trainee = Depends(require_trainer),
 ) -> Any:
     """Delete program. Requires trainer or admin role."""
-    p = crud_program.remove(db, id=program_id)
+    # Load the program first to construct a stable response payload
+    p = crud_program.get(db, id=program_id)
     if not p:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program not found")
-    return p
+    # Build response payload as a plain dict to avoid lazy-load during serialization
+    payload = {
+        "id": p.id,
+        "name": p.name,
+        "description": p.description,
+        "trainer_id": getattr(p, "trainer_id", None),
+        "created_at": getattr(p, "created_at", None),
+        "trainer": None,  # avoid detached relationship access
+    }
+    # Now delete the program from DB
+    _ = crud_program.remove(db, id=program_id)
+    return payload

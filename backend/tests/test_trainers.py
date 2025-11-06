@@ -157,9 +157,9 @@ def test_read_trainer_detail_public_access(client: TestClient, db_session: Sessi
 # LEGACY TESTS (kept for backward compatibility)
 # ============================================================================
 
-def test_create_trainer(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
+def test_create_trainer(client: TestClient, db_session: Session, admin_headers: dict[str, str]) -> None:
     payload = {"first_name": "John", "last_name": "Doe", "email": "john.doe@example.com", "gym_id": None}
-    r = client.post(f"{settings.API_V1_STR}/trainers/", json=payload, headers=auth_headers)
+    r = client.post(f"{settings.API_V1_STR}/trainers/", json=payload, headers=admin_headers)
     assert r.status_code == 200, r.text
     data = r.json()
     assert data["first_name"] == payload["first_name"]
@@ -167,9 +167,9 @@ def test_create_trainer(client: TestClient, db_session: Session, auth_headers: d
     assert "id" in data
 
 
-def test_read_trainer(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
+def test_read_trainer(client: TestClient, db_session: Session, admin_headers: dict[str, str]) -> None:
     # create first
-    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Alice", "last_name": "Smith", "email": "alice@example.com", "gym_id": None}, headers=auth_headers)
+    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Alice", "last_name": "Smith", "email": "alice@example.com", "gym_id": None}, headers=admin_headers)
     assert c.status_code == 200
     created = c.json()
 
@@ -181,10 +181,10 @@ def test_read_trainer(client: TestClient, db_session: Session, auth_headers: dic
     assert got["email"] == "alice@example.com"
 
 
-def test_read_trainers(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
+def test_read_trainers(client: TestClient, db_session: Session, admin_headers: dict[str, str]) -> None:
     # ensure a couple of trainers exist
-    client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "T1", "last_name": "L1", "email": "t1@example.com", "gym_id": None}, headers=auth_headers)
-    client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "T2", "last_name": "L2", "email": "t2@example.com", "gym_id": None}, headers=auth_headers)
+    client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "T1", "last_name": "L1", "email": "t1@example.com", "gym_id": None}, headers=admin_headers)
+    client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "T2", "last_name": "L2", "email": "t2@example.com", "gym_id": None}, headers=admin_headers)
 
     r = client.get(f"{settings.API_V1_STR}/trainers/?skip=0&limit=50")
     assert r.status_code == 200
@@ -193,27 +193,27 @@ def test_read_trainers(client: TestClient, db_session: Session, auth_headers: di
     assert any(t["email"] == "t1@example.com" for t in data)
 
 
-def test_update_trainer(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
+def test_update_trainer(client: TestClient, db_session: Session, admin_headers: dict[str, str]) -> None:
     # create
-    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Upd", "last_name": "Me", "email": "upd@example.com", "gym_id": None}, headers=auth_headers)
+    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Upd", "last_name": "Me", "email": "upd@example.com", "gym_id": None}, headers=admin_headers)
     created = c.json()
 
     # update
     new_data = {"first_name": "Updated", "last_name": "Name", "email": "upd@example.com", "gym_id": None}
-    r = client.put(f"{settings.API_V1_STR}/trainers/{created['id']}", json=new_data, headers=auth_headers)
+    r = client.put(f"{settings.API_V1_STR}/trainers/{created['id']}", json=new_data, headers=admin_headers)
     assert r.status_code == 200
     updated = r.json()
     assert updated["first_name"] == "Updated"
     assert updated["last_name"] == "Name"
 
 
-def test_delete_trainer(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
+def test_delete_trainer(client: TestClient, db_session: Session, admin_headers: dict[str, str]) -> None:
     # create
-    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Del", "last_name": "Me", "email": "del@example.com", "gym_id": None}, headers=auth_headers)
+    c = client.post(f"{settings.API_V1_STR}/trainers/", json={"first_name": "Del", "last_name": "Me", "email": "del@example.com", "gym_id": None}, headers=admin_headers)
     created = c.json()
 
     # delete
-    r = client.delete(f"{settings.API_V1_STR}/trainers/{created['id']}", headers=auth_headers)
+    r = client.delete(f"{settings.API_V1_STR}/trainers/{created['id']}", headers=admin_headers)
     assert r.status_code == 200
 
     # verify 404 after delete

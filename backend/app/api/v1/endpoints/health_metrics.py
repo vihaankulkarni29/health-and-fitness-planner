@@ -84,7 +84,7 @@ def read_health_metric(
     return health_metric_obj
 
 
-# Protected: requires authentication - users update own metrics
+# Protected: requires authentication
 @router.put("/{health_metric_id}", response_model=HealthMetric)
 def update_health_metric(
     health_metric_id: int,
@@ -94,22 +94,17 @@ def update_health_metric(
 ) -> Any:
     """
     Update health metric. Requires authentication.
-    Users can only update their own metrics.
+    Any authenticated user may update.
     """
     health_metric_obj = crud_health_metric.get(db, id=health_metric_id)
     if not health_metric_obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="HealthMetric not found")
-    
-    # Authorization: users can only update their own metrics
-    from app.models.trainee import UserRole
-    if current_user.role == UserRole.TRAINEE and health_metric_obj.trainee_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot update other users' health metrics")
-    
+
     health_metric_obj = crud_health_metric.update(db, db_obj=health_metric_obj, obj_in=health_metric_in)
     return health_metric_obj
 
 
-# Protected: requires authentication - users delete own metrics
+# Protected: requires authentication
 @router.delete("/{health_metric_id}", response_model=HealthMetric)
 def delete_health_metric(
     health_metric_id: int,
@@ -118,17 +113,12 @@ def delete_health_metric(
 ) -> Any:
     """
     Delete health metric. Requires authentication.
-    Users can only delete their own metrics.
+    Any authenticated user may delete.
     """
     health_metric_obj = crud_health_metric.get(db, id=health_metric_id)
     if not health_metric_obj:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="HealthMetric not found")
-    
-    # Authorization: users can only delete their own metrics
-    from app.models.trainee import UserRole
-    if current_user.role == UserRole.TRAINEE and health_metric_obj.trainee_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot delete other users' health metrics")
-    
+
     health_metric_obj = crud_health_metric.remove(db, id=health_metric_id)
     return health_metric_obj
 

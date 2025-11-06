@@ -16,8 +16,13 @@ class ProgramExerciseCreate(ProgramExerciseBase):
     pass
 
 # Properties to receive on item update
-class ProgramExerciseUpdate(ProgramExerciseBase):
-    pass
+class ProgramExerciseUpdate(BaseModel):
+    program_id: Optional[int] = None
+    exercise_id: Optional[int] = None
+    order: Optional[int] = None
+    prescribed_sets: Optional[int] = None
+    prescribed_reps: Optional[int] = None
+    prescribed_weight_kg: Optional[float] = None
 
 # Properties to return to client
 class ProgramExercise(ProgramExerciseBase):

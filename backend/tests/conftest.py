@@ -48,12 +48,18 @@ def engine(sqlite_db_url: str):
 
 @pytest.fixture()
 def db_session(engine) -> Generator:
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    """Yield a SQLAlchemy session with a transaction that is rolled back after the test."""
+    connection = engine.connect()
+    transaction = connection.begin()
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=connection)
     db = TestingSessionLocal()
+
     try:
         yield db
     finally:
         db.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture()
@@ -177,47 +183,48 @@ def admin_user(db_session) -> dict:
     db_session.refresh(user)
     
     return {"email": email, "password": "admin123", "id": user.id}
-    @pytest.fixture()
-    def trainee_headers(client: TestClient, trainee_user: dict) -> dict[str, str]:
-        """Get authentication headers for trainee user."""
-        login_data = {
-            "username": trainee_user["email"],
-            "password": trainee_user["password"],
-        }
-        response = client.post(
-            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
-        )
-        assert response.status_code == 200, f"Trainee login failed: {response.text}"
-        token = response.json()["access_token"]
-        return {"Authorization": f"Bearer {token}"}
+
+@pytest.fixture()
+def trainee_headers(client: TestClient, trainee_user: dict) -> dict[str, str]:
+    """Get authentication headers for trainee user."""
+    login_data = {
+        "username": trainee_user["email"],
+        "password": trainee_user["password"],
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+    )
+    assert response.status_code == 200, f"Trainee login failed: {response.text}"
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
-    @pytest.fixture()
-    def trainer_headers(client: TestClient, trainer_user: dict) -> dict[str, str]:
-        """Get authentication headers for trainer user."""
-        login_data = {
-            "username": trainer_user["email"],
-            "password": trainer_user["password"],
-        }
-        response = client.post(
-            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
-        )
-        assert response.status_code == 200, f"Trainer login failed: {response.text}"
-        token = response.json()["access_token"]
-        return {"Authorization": f"Bearer {token}"}
+@pytest.fixture()
+def trainer_headers(client: TestClient, trainer_user: dict) -> dict[str, str]:
+    """Get authentication headers for trainer user."""
+    login_data = {
+        "username": trainer_user["email"],
+        "password": trainer_user["password"],
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+    )
+    assert response.status_code == 200, f"Trainer login failed: {response.text}"
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
-    @pytest.fixture()
-    def admin_headers(client: TestClient, admin_user: dict) -> dict[str, str]:
-        """Get authentication headers for admin user."""
-        login_data = {
-            "username": admin_user["email"],
-            "password": admin_user["password"],
-        }
-        response = client.post(
-            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
-        )
-        assert response.status_code == 200, f"Admin login failed: {response.text}"
-        token = response.json()["access_token"]
-        return {"Authorization": f"Bearer {token}"}
+@pytest.fixture()
+def admin_headers(client: TestClient, admin_user: dict) -> dict[str, str]:
+    """Get authentication headers for admin user."""
+    login_data = {
+        "username": admin_user["email"],
+        "password": admin_user["password"],
+    }
+    response = client.post(
+        f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+    )
+    assert response.status_code == 200, f"Admin login failed: {response.text}"
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 

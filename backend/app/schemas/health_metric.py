@@ -7,15 +7,18 @@ class HealthMetricBase(BaseModel):
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     body_fat_percentage: Optional[float] = None
-    trainee_id: int
+    trainee_id: Optional[int] = None
 
 # Properties to receive on item creation
-class HealthMetricCreate(HealthMetricBase):
-    pass
+class HealthMetricCreate(BaseModel):
+    trainee_id: int
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    body_fat_percentage: Optional[float] = None
 
 # Properties to receive on item update
 class HealthMetricUpdate(HealthMetricBase):
-    pass
+    pass  # All fields optional for partial updates
 
 # Properties to return to client
 class HealthMetric(HealthMetricBase):

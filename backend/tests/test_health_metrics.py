@@ -1,35 +1,16 @@
-from typing import Generator
-
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.session import SessionLocal
-from app.main import app
-from app.models.trainee import Trainee
 from app.schemas.health_metric import HealthMetricCreate, HealthMetricUpdate
 from app.crud.crud_health_metric import health_metric as crud_health_metric
 from app.crud.crud_trainee import trainee as crud_trainee
 
 
-@pytest.fixture(scope="module")
-def db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    yield db
-    db.close()
-
-
-@pytest.fixture(scope="module")
-def client() -> Generator[TestClient, None, None]:
-    with TestClient(app) as c:
-        yield c
-
-
-def test_create_health_metric(client: TestClient, db: Session, auth_headers: dict[str, str]) -> None:
+def test_create_health_metric(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
     # Create a trainee to associate the health metric with
     trainee_in = {"first_name": "Test", "last_name": "Trainee", "email": "test.trainee.health@example.com"}
-    trainee = crud_trainee.create(db, obj_in=trainee_in)
+    trainee = crud_trainee.create(db_session, obj_in=trainee_in)
 
     data = {"trainee_id": trainee.id, "height_cm": 180, "weight_kg": 75, "body_fat_percentage": 15.5}
     response = client.post(
@@ -46,13 +27,13 @@ def test_create_health_metric(client: TestClient, db: Session, auth_headers: dic
     assert "recorded_at" in content
 
 
-def test_read_health_metric(client: TestClient, db: Session) -> None:
+def test_read_health_metric(client: TestClient, db_session: Session, trainer_headers: dict[str, str]) -> None:
     trainee_in = {"first_name": "Test", "last_name": "Trainee", "email": "test.trainee.health2@example.com"}
-    trainee = crud_trainee.create(db, obj_in=trainee_in)
+    trainee = crud_trainee.create(db_session, obj_in=trainee_in)
     health_metric_in = HealthMetricCreate(trainee_id=trainee.id, height_cm=170, weight_kg=65, body_fat_percentage=20.0)
-    health_metric = crud_health_metric.create(db, obj_in=health_metric_in)
+    health_metric = crud_health_metric.create(db_session, obj_in=health_metric_in)
 
-    response = client.get(f"{settings.API_V1_STR}/health_metrics/{health_metric.id}")
+    response = client.get(f"{settings.API_V1_STR}/health_metrics/{health_metric.id}", headers=trainer_headers)
     assert response.status_code == 200
     content = response.json()
     assert content["height_cm"] == health_metric.height_cm
@@ -61,18 +42,18 @@ def test_read_health_metric(client: TestClient, db: Session) -> None:
     assert content["id"] == health_metric.id
 
 
-def test_read_health_metrics(client: TestClient, db: Session) -> None:
-    response = client.get(f"{settings.API_V1_STR}/health_metrics/")
+def test_read_health_metrics(client: TestClient, db_session: Session, trainer_headers: dict[str, str]) -> None:
+    response = client.get(f"{settings.API_V1_STR}/health_metrics/", headers=trainer_headers)
     assert response.status_code == 200
     content = response.json()
     assert isinstance(content, list)
 
 
-def test_update_health_metric(client: TestClient, db: Session, auth_headers: dict[str, str]) -> None:
+def test_update_health_metric(client: TestClient, db_session: Session, auth_headers: dict[str, str]) -> None:
     trainee_in = {"first_name": "Test", "last_name": "Trainee", "email": "test.trainee.health3@example.com"}
-    trainee = crud_trainee.create(db, obj_in=trainee_in)
+    trainee = crud_trainee.create(db_session, obj_in=trainee_in)
     health_metric_in = HealthMetricCreate(trainee_id=trainee.id, height_cm=190, weight_kg=95, body_fat_percentage=12.0)
-    health_metric = crud_health_metric.create(db, obj_in=health_metric_in)
+    health_metric = crud_health_metric.create(db_session, obj_in=health_metric_in)
 
     data = {"weight_kg": 96}
     response = client.put(
@@ -86,16 +67,16 @@ def test_update_health_metric(client: TestClient, db: Session, auth_headers: dic
     assert content["id"] == health_metric.id
 
 
-def test_delete_health_metric(client: TestClient, db: Session, auth_headers: dict[str, str]) -> None:
+def test_delete_health_metric(client: TestClient, db_session: Session, auth_headers: dict[str, str], trainer_headers: dict[str, str]) -> None:
     trainee_in = {"first_name": "Test", "last_name": "Trainee", "email": "test.trainee.health4@example.com"}
-    trainee = crud_trainee.create(db, obj_in=trainee_in)
+    trainee = crud_trainee.create(db_session, obj_in=trainee_in)
     health_metric_in = HealthMetricCreate(trainee_id=trainee.id, height_cm=160, weight_kg=55, body_fat_percentage=25.0)
-    health_metric = crud_health_metric.create(db, obj_in=health_metric_in)
+    health_metric = crud_health_metric.create(db_session, obj_in=health_metric_in)
 
     response = client.delete(f"{settings.API_V1_STR}/health_metrics/{health_metric.id}", headers=auth_headers)
     assert response.status_code == 200
     content = response.json()
     assert content["id"] == health_metric.id
 
-    response = client.get(f"{settings.API_V1_STR}/health_metrics/{health_metric.id}")
+    response = client.get(f"{settings.API_V1_STR}/health_metrics/{health_metric.id}", headers=trainer_headers)
     assert response.status_code == 404
