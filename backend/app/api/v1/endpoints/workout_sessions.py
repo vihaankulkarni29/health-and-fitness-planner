@@ -45,6 +45,7 @@ def start_workout_session(
 ) -> Any:
     """
     Start a new workout session.
+    Users can only start sessions for themselves.
 
     - **trainee_id**: ID of the trainee starting the session.
     - **program_id**: ID of the program for the session.
@@ -69,6 +70,14 @@ def start_workout_session(
     }
     ```
     """
+    # Authorization: users can only create sessions for themselves
+    from app.models.trainee import UserRole
+    if current_user.role == UserRole.TRAINEE and session_in.trainee_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot create workout sessions for other users"
+        )
+    
     # Create a WorkoutSessionCreate object with the provided data
     # and set the session_date to the current date and status to "in-progress"
     from app.schemas.workout_session import WorkoutSessionBase
@@ -129,6 +138,15 @@ def log_exercise_in_session(
     session = crud_workout_session.get(db, id=session_id)
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
+    
+    # Authorization: users can only log exercises in their own sessions
+    from app.models.trainee import UserRole
+    if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot log exercises in other users' workout sessions"
+        )
+    
     # Cast to Any to avoid SQLAlchemy type-check confusion on InstrumentedAttributes
     from typing import Any as _Any
     _session: _Any = session
@@ -196,6 +214,15 @@ def end_workout_session(
     session = crud_workout_session.get(db, id=session_id)
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
+    
+    # Authorization: users can only end their own sessions
+    from app.models.trainee import UserRole
+    if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot end other users' workout sessions"
+        )
+    
     from typing import Any as _Any
     _session: _Any = session
     if _session.status != "in-progress":
@@ -210,9 +237,11 @@ def end_workout_session(
 def read_workout_session(
     session_id: int,
     db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
 ) -> Any:
     """
-    Get workout session by ID.
+    Get workout session by ID. Requires authentication.
+    Users can only view their own sessions, trainers can view all.
 
     - **session_id**: ID of the workout session to retrieve.
 
@@ -243,4 +272,13 @@ def read_workout_session(
     session = crud_workout_session.get(db, id=session_id)
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
+    
+    # Authorization: users can only view their own sessions unless they're trainer/admin
+    from app.models.trainee import UserRole
+    if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot view other users' workout sessions"
+        )
+    
     return session

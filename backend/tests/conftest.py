@@ -20,6 +20,7 @@ from app.api.deps import get_db  # noqa: E402
 from app.schemas.trainee import TraineeCreate  # noqa: E402
 from app.auth.crud import create_user  # noqa: E402
 from app.core.config import settings  # noqa: E402
+from app.models.trainee import UserRole  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -107,4 +108,116 @@ def auth_headers(client: TestClient, db_session) -> dict[str, str]:
     
     # Return headers dict with Bearer token
     return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture()
+def trainee_user(db_session) -> dict:
+    """Create a test trainee user (lowest permission level)."""
+    from app.auth.crud import get_user_by_email
+    from app.crud.crud_trainee import trainee as crud_trainee
+    
+    email = "trainee@test.com"
+    
+    user_in = TraineeCreate(
+        email=email,
+        password="trainee123",
+        first_name="Test",
+        last_name="Trainee",
+    )
+    user = create_user(db_session, obj_in=user_in)
+    # Update role to trainee (should be default)
+    user.role = UserRole.TRAINEE
+    db_session.commit()
+    db_session.refresh(user)
+    
+    return {"email": email, "password": "trainee123", "id": user.id}
+
+
+@pytest.fixture()
+def trainer_user(db_session) -> dict:
+    """Create a test trainer user (medium permission level)."""
+    from app.auth.crud import get_user_by_email
+    from app.crud.crud_trainee import trainee as crud_trainee
+    
+    email = "trainer@test.com"
+    
+    user_in = TraineeCreate(
+        email=email,
+        password="trainer123",
+        first_name="Test",
+        last_name="Trainer",
+    )
+    user = create_user(db_session, obj_in=user_in)
+    # Update role to trainer
+    user.role = UserRole.TRAINER
+    db_session.commit()
+    db_session.refresh(user)
+    
+    return {"email": email, "password": "trainer123", "id": user.id}
+
+
+@pytest.fixture()
+def admin_user(db_session) -> dict:
+    """Create a test admin user (highest permission level)."""
+    from app.auth.crud import get_user_by_email
+    from app.crud.crud_trainee import trainee as crud_trainee
+    
+    email = "admin@test.com"
+    
+    user_in = TraineeCreate(
+        email=email,
+        password="admin123",
+        first_name="Test",
+        last_name="Admin",
+    )
+    user = create_user(db_session, obj_in=user_in)
+    # Update role to admin
+    user.role = UserRole.ADMIN
+    db_session.commit()
+    db_session.refresh(user)
+    
+    return {"email": email, "password": "admin123", "id": user.id}
+    @pytest.fixture()
+    def trainee_headers(client: TestClient, trainee_user: dict) -> dict[str, str]:
+        """Get authentication headers for trainee user."""
+        login_data = {
+            "username": trainee_user["email"],
+            "password": trainee_user["password"],
+        }
+        response = client.post(
+            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+        )
+        assert response.status_code == 200, f"Trainee login failed: {response.text}"
+        token = response.json()["access_token"]
+        return {"Authorization": f"Bearer {token}"}
+
+
+    @pytest.fixture()
+    def trainer_headers(client: TestClient, trainer_user: dict) -> dict[str, str]:
+        """Get authentication headers for trainer user."""
+        login_data = {
+            "username": trainer_user["email"],
+            "password": trainer_user["password"],
+        }
+        response = client.post(
+            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+        )
+        assert response.status_code == 200, f"Trainer login failed: {response.text}"
+        token = response.json()["access_token"]
+        return {"Authorization": f"Bearer {token}"}
+
+
+    @pytest.fixture()
+    def admin_headers(client: TestClient, admin_user: dict) -> dict[str, str]:
+        """Get authentication headers for admin user."""
+        login_data = {
+            "username": admin_user["email"],
+            "password": admin_user["password"],
+        }
+        response = client.post(
+            f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
+        )
+        assert response.status_code == 200, f"Admin login failed: {response.text}"
+        token = response.json()["access_token"]
+        return {"Authorization": f"Bearer {token}"}
 
