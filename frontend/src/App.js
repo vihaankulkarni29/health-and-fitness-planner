@@ -1,5 +1,12 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { lightTheme, darkTheme } from './theme/theme';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -13,17 +20,35 @@ import RequireAuth from './components/RequireAuth';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
+    // Theme toggle with localStorage persistence
+    const [mode, setMode] = useState(() => {
+        const savedMode = localStorage.getItem('themeMode');
+        return savedMode || 'light';
+    });
+
+    const theme = useMemo(() => mode === 'dark' ? darkTheme : lightTheme, [mode]);
+
+    useEffect(() => {
+        localStorage.setItem('themeMode', mode);
+    }, [mode]);
+
+    const toggleTheme = () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    };
+
     return (
-        <ErrorBoundary>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<LandingPage />} />
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <ErrorBoundary>
+                <Router>
+                    <Routes>
+                    <Route path="/" element={<LandingPage toggleTheme={toggleTheme} mode={mode} />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route
                         path="/dashboard"
                         element={
                             <RequireAuth>
-                                <DashboardPage />
+                                <DashboardPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -31,7 +56,7 @@ function App() {
                         path="/workout/:sessionId"
                         element={
                             <RequireAuth>
-                                <WorkoutSessionPage />
+                                <WorkoutSessionPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -39,7 +64,7 @@ function App() {
                         path="/health-metrics"
                         element={
                             <RequireAuth>
-                                <HealthMetricsPage />
+                                <HealthMetricsPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -47,7 +72,7 @@ function App() {
                         path="/profile"
                         element={
                             <RequireAuth>
-                                <ProfilePage />
+                                <ProfilePage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -55,7 +80,7 @@ function App() {
                         path="/analytics"
                         element={
                             <RequireAuth>
-                                <AnalyticsPage />
+                                <AnalyticsPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -63,7 +88,7 @@ function App() {
                         path="/trainer-dashboard"
                         element={
                             <RequireAuth>
-                                <TrainerDashboardPage />
+                                <TrainerDashboardPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
@@ -71,13 +96,14 @@ function App() {
                         path="/trainer/client/:clientId"
                         element={
                             <RequireAuth>
-                                <ClientProgressPage />
+                                <ClientProgressPage toggleTheme={toggleTheme} mode={mode} />
                             </RequireAuth>
                         }
                     />
                 </Routes>
             </Router>
         </ErrorBoundary>
+        </ThemeProvider>
     );
 }
 
