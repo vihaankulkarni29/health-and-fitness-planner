@@ -1,137 +1,114 @@
-# Food & Fitness Planners
+# Documentation Index
 
-A comprehensive web-based tracking system consisting of two specialized planners: Food Tracker and Fitness Tracker. Both applications feature local storage, Google Sheets integration, and a modern, responsive design.
+Welcome to the Health & Fitness Planner documentation! This directory contains comprehensive documentation organized by category.
 
-## Features
+## 📁 Documentation Structure
 
-### Food Tracker
-- **Recipe Calculator**: Calculate nutrition from ingredient lists for home-cooked meals
-- **Recipe Storage**: Save recipes for quick future access (e.g., "Butter Chicken")
-- **Food Scale Integration**: Precise grams/ml measurements for accurate portion tracking
-- **Ingredient Database**: 100+ common ingredients with nutritional data
-- **Multiple Logging Methods**: Simple entry, recipe calculator, or saved recipe lookup
-- **Comprehensive Nutrition**: Calories, protein, carbs, fat, and fiber tracking
+### 🏛️ [Architecture](./architecture/)
+System design, database schema, and technical architecture documentation.
 
-### Fitness Tracker
-- **Exercise Logging**: Record various exercises with sets, reps, and weight
-- **Time-based Activities**: Track duration and load for cardio/time-based exercises
-- **Progress History**: View chronological workout history
-- **Flexible Input**: Toggle between weight/reps and time/load modes
+- **[ARCHITECTURE.md](./architecture/ARCHITECTURE.md)** - Overall system architecture and design principles
+- **[ERD.md](./architecture/ERD.md)** - Database entity-relationship diagram and schema
+- **[BACKEND_DEVELOPMENT_PLAN.md](./architecture/BACKEND_DEVELOPMENT_PLAN.md)** - Backend roadmap and technical plan
 
-## Common Features
-- **Local Storage**: Data persists between sessions
-- **Google Sheets Integration**: Sync data to spreadsheets for analysis
-- **Responsive Design**: Works on desktop and mobile devices
-- **Dark Theme**: Modern UI with Tailwind CSS
-- **Real-time Sync**: Batch sync all history to Google Sheets
-- **Data Management**: Clear all data with confirmation
+### 📋 [Phase Logs](./phases/)
+Chronological development logs tracking progress through each development phase.
 
-## Setup Instructions
+- **[PHASE_1_LOG.md](./phases/PHASE_1_LOG.md)** - Initial setup and database design
+- **[PHASE_2_LOG.md](./phases/PHASE_2_LOG.md)** - Authentication implementation
+- **[PHASE_3_LOG.md](./phases/PHASE_3_LOG.md)** - Core CRUD operations
+- **[PHASE_4_LOG.md](./phases/PHASE_4_LOG.md)** - Testing and validation
+- **[PHASE_5_LOG.md](./phases/PHASE_5_LOG.md)** - Frontend integration
+- **[PHASE_6_LOG.md](./phases/PHASE_6_LOG.md)** - Role-based access control
+- **[PHASE_6_RBAC_COMPLETE.md](./phases/PHASE_6_RBAC_COMPLETE.md)** - RBAC completion summary
+- **[PHASE_7_LOG.md](./phases/PHASE_7_LOG.md)** - Security hardening and optimization
 
-### 1. Google Sheets Integration (Optional)
+### 🎨 [UI/UX Documentation](./ui/)
+User interface design, wireframes, and frontend development documentation.
 
-To enable Google Sheets syncing:
+- **[UI_UX_DEVELOPMENT_PLAN.md](./ui/UI_UX_DEVELOPMENT_PLAN.md)** - UI/UX design strategy
+- **[UI_UX_PROGRESS.md](./ui/UI_UX_PROGRESS.md)** - Frontend implementation progress
+- **[LANDING_PAGE_FEATURES.md](./ui/LANDING_PAGE_FEATURES.md)** - Landing page feature breakdown
 
-1. Create a new Google Sheet
-2. Go to Extensions > Apps Script
-3. Replace the default code with:
+### 📖 [Guides](./guides/)
+User guides, API documentation, and operational manuals.
 
-```javascript
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+- **[DEMO_GUIDE.md](./guides/DEMO_GUIDE.md)** - Application demonstration walkthrough
+- **[DEMO_READINESS_ASSESSMENT.md](./guides/DEMO_READINESS_ASSESSMENT.md)** - Pre-demo checklist
+- **[INVESTOR_DEMO_GUIDE.md](./guides/INVESTOR_DEMO_GUIDE.md)** - Investor pitch and demo script
+- **[QUICK_REFERENCE.md](./guides/QUICK_REFERENCE.md)** - API quick reference guide
+- **[RATE_LIMITING.md](./guides/RATE_LIMITING.md)** - Rate limiting configuration and usage
 
-    // Add headers if sheet is empty
-    if (sheet.getLastRow() === 0) {
-      const headers = ['Timestamp', 'Type', 'Details', 'Data'];
-      sheet.appendRow(headers);
-    }
+### 📊 [Logs](./logs/)
+Error logs, issue tracking, and major milestone documentation.
 
-    // Format timestamp
-    const timestamp = new Date(data.timestamp).toLocaleString();
+- **[ERROR_LOG.md](./logs/ERROR_LOG.md)** - Known issues and resolutions
+- **[MAJOR_WORK.md](./logs/MAJOR_WORK.md)** - Major milestones and achievements
 
-    // Prepare row data
-    const rowData = [
-      timestamp,
-      data.metricType || data.type || 'Unknown',
-      data.details || '',
-      JSON.stringify(data)
-    ];
+---
 
-    sheet.appendRow(rowData);
+## 🚀 Quick Start
 
-    return ContentService
-      .createTextOutput('Success')
-      .setMimeType(ContentService.MimeType.TEXT);
-  } catch (error) {
-    return ContentService
-      .createTextOutput('Error: ' + error.message)
-      .setMimeType(ContentService.MimeType.TEXT);
-  }
-}
-```
+New to the project? Start here:
 
-4. Deploy the script as a web app:
-   - Click "Deploy" > "New deployment"
-   - Select type "Web app"
-   - Execute as "Me", access "Anyone"
-   - Copy the deployment URL
+1. **[Main README](../README.md)** - Project overview, tech stack, and setup instructions
+2. **[Architecture Guide](./architecture/ARCHITECTURE.md)** - Understand the system design
+3. **[Phase Logs](./phases/)** - See how the project evolved
+4. **[Demo Guide](./guides/DEMO_GUIDE.md)** - Learn how to use the application
 
-5. **For Food Tracker**: Deploy `food_script.js` to get your Food Tracker script URL
-6. **For Fitness Tracker**: Deploy `fitness_script.js` to get your Fitness Tracker script URL
-7. Update the `GOOGLE_SCRIPT_URL` in each HTML file with their respective deployment URLs:
-   - `food/food_tracker.html` → Food Tracker script URL
-   - `fitness/fitness_tracker.html` → Fitness Tracker script URL
+---
 
-### 2. Running the Applications
+## 🔍 Find What You Need
 
-Simply open the HTML files in any modern web browser:
-- `food/food_tracker.html` for food tracking
-- `fitness/fitness_tracker.html` for fitness tracking
+### For Developers
+- Setting up the project? → [Main README - Getting Started](../README.md#-getting-started)
+- Understanding the codebase? → [Architecture](./architecture/ARCHITECTURE.md)
+- Database schema? → [ERD Diagram](./architecture/ERD.md)
+- API endpoints? → [Quick Reference](./guides/QUICK_REFERENCE.md)
+- Rate limiting details? → [Rate Limiting Guide](./guides/RATE_LIMITING.md)
 
-No server or additional setup required!
+### For Stakeholders
+- Product demo? → [Investor Demo Guide](./guides/INVESTOR_DEMO_GUIDE.md)
+- Development progress? → [Phase Logs](./phases/)
+- UI/UX design? → [UI/UX Documentation](./ui/)
 
-## Project Structure
+### For Troubleshooting
+- Known issues? → [Error Log](./logs/ERROR_LOG.md)
+- Development history? → [Phase Logs](./phases/)
+- Major changes? → [Major Work Log](./logs/MAJOR_WORK.md)
 
-```
-Planner/
-├── food/
-│   └── food_tracker.html
-├── fitness/
-│   └── fitness_tracker.html
-├── README.md
-└── (other files)
-```
+---
 
-## Technologies Used
+## 📝 Documentation Standards
 
-- **HTML5**: Semantic markup
-- **CSS3**: Tailwind CSS for styling
-- **JavaScript (ES6+)**: Vanilla JS with modern features
-- **Local Storage**: Client-side data persistence
-- **Google Apps Script**: Serverless backend for Sheets integration
-- **Fetch API**: Asynchronous data syncing
+All documentation in this project follows these principles:
 
-## Browser Compatibility
+- **Clear Structure**: Organized into logical categories
+- **Up-to-Date**: Maintained alongside code changes
+- **Comprehensive**: Covers architecture, API, and usage
+- **Accessible**: Written for both technical and non-technical audiences
 
-Works in all modern browsers that support:
-- ES6+ JavaScript
-- Local Storage API
-- Fetch API
-- CSS Grid/Flexbox
+---
 
-## Privacy & Data
+## 🤝 Contributing to Documentation
 
-- All data is stored locally in your browser
-- Google Sheets integration only sends data when you explicitly sync
-- No data is collected or transmitted without your consent
-- You can clear all local data at any time
+When adding new documentation:
 
-## Contributing
+1. **Choose the right category**:
+   - Architecture → Technical design docs
+   - Phases → Development progress logs
+   - UI → Frontend/design documentation
+   - Guides → User/developer guides
+   - Logs → Issue tracking and milestones
 
-Feel free to fork and modify for your needs. The code is well-commented and modular for easy customization.
+2. **Follow naming conventions**:
+   - Use UPPERCASE for major docs (e.g., `ARCHITECTURE.md`)
+   - Use descriptive names (e.g., `RATE_LIMITING.md` not `RL.md`)
+   - Include dates in phase logs
 
-## License
+3. **Update this index** when adding new files
 
-This project is open source and available under the MIT License.
+---
+
+**Last Updated**: November 7, 2025
+ 

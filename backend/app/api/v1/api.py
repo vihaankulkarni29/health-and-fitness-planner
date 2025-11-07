@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import gyms, trainers, trainees, programs, exercises, health_metrics, program_exercises, workout_sessions, exercise_logs
+from app.api.v1.endpoints import gyms, trainers, trainees, programs, exercises, health_metrics, program_exercises, workout_sessions, exercise_logs, analytics, trainer_dashboard
 from app.auth import api as auth_api
 
 api_router = APIRouter()
@@ -14,3 +14,5 @@ api_router.include_router(health_metrics.router, prefix="/health_metrics", tags=
 api_router.include_router(program_exercises.router, prefix="/program_exercises", tags=["program_exercises"])
 api_router.include_router(workout_sessions.router, prefix="/workout_sessions", tags=["workout_sessions"])
 api_router.include_router(exercise_logs.router, prefix="/exercise_logs", tags=["exercise_logs"])
+api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+api_router.include_router(trainer_dashboard.router, prefix="/trainer-dashboard", tags=["trainer-dashboard"])

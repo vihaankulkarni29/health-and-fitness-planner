@@ -1,8 +1,15 @@
 import client from './client';
 
 export async function login(email, password) {
-  const params = new URLSearchParams({ username: email, password });
-  const { data } = await client.post('/auth/login/access-token', params);
+  const params = new URLSearchParams();
+  params.append('username', email);
+  params.append('password', password);
+  
+  const { data } = await client.post('/auth/login/access-token', params, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  });
   return data; // { access_token, token_type }
 }
 

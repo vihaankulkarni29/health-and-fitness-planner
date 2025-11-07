@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.crud.crud_trainee import trainee as crud_trainee
@@ -9,20 +9,25 @@ from app.schemas.trainee import Trainee, TraineeCreate, TraineeUpdate
 from app.api.deps import get_db
 from app.auth.deps import get_current_user, require_trainer, require_admin
 from app.models.trainee import Trainee as TraineeModel, UserRole
+from app.core.rate_limit import limiter, RATE_LIMIT_STRICT
 
 router = APIRouter()  # Removed duplicate prefix
 
 
 # Public endpoint for user registration
 @router.post("/", response_model=Trainee)
+@limiter.limit(RATE_LIMIT_STRICT)
 def create_trainee(
     *,
+    request: Request,
     db: Session = Depends(get_db),
     trainee_in: TraineeCreate,
 ) -> Any:
     """
     Create new trainee (user registration). Public endpoint.
     Anyone can register as a trainee.
+    
+    Rate limit: 3 requests per minute per IP address (strict to prevent spam).
     """
     existing = crud_trainee.get_by_email(db, email=trainee_in.email)
     if existing:
