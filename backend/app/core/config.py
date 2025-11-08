@@ -10,8 +10,10 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     # JWT settings
     SECRET_KEY: str = "a_secret_key"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    # Shortened access token lifetime for improved security; rely on refresh rotation
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 15 minutes
     ALGORITHM: str = "HS256"
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7  # 7 days default
 
     CORS_ORIGINS_STR: str = Field(
         default="http://localhost:3000,http://localhost:8000",

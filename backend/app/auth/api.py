@@ -18,7 +18,7 @@ from app.schemas.trainee import Trainee as TraineeSchema
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/login/access-token", response_model=schemas.Token)
+@router.post("/login/access-token", response_model=schemas.TokenPair)
 @limiter.limit(RATE_LIMIT_AUTH)
 def login_access_token(
     request: Request,
@@ -39,10 +39,13 @@ def login_access_token(
         )
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth_token.create_access_token(
+        user.id, expires_delta=access_token_expires
+    )
+    refresh_token = auth_token.create_refresh_token(user.id, settings.REFRESH_TOKEN_EXPIRE_DAYS)
     return {
-        "access_token": auth_token.create_access_token(
-            user.id, expires_delta=access_token_expires
-        ),
+        "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
     }
 
@@ -51,3 +54,24 @@ def login_access_token(
 def read_users_me(current_user: TraineeModel = Depends(get_current_user)) -> Any:
     """Return the currently authenticated user's profile."""
     return current_user
+
+
+@router.post("/refresh", response_model=schemas.TokenPair)
+def refresh_tokens(payload: schemas.RefreshRequest) -> Any:
+    """Issue new access and refresh tokens using a valid refresh token."""
+    from jose import jwt, JWTError
+
+    try:
+        decoded = jwt.decode(payload.refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if decoded.get("type") != "refresh":
+            raise HTTPException(status_code=400, detail="Invalid token type")
+        user_id = decoded.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=400, detail="Invalid refresh token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    new_access = auth_token.create_access_token(user_id, expires_delta=access_token_expires)
+    new_refresh = auth_token.create_refresh_token(user_id, settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    return {"access_token": new_access, "refresh_token": new_refresh, "token_type": "bearer"}

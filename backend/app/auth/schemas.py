@@ -9,3 +9,14 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None
+    type: Optional[str] = None  # 'access' or 'refresh'
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
