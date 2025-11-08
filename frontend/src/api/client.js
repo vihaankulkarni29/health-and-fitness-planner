@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { getAccessToken, getRefreshToken, clearTokens } from '../auth/token';
+import { refreshTokens } from './auth';
 
 // Use environment variable for API URL, fallback to localhost
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
@@ -8,7 +10,7 @@ const client = axios.create({
 });
 
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = getAccessToken();
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -18,11 +20,23 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Optionally clear token and redirect to login
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const rt = getRefreshToken();
+        if (!rt) throw new Error('No refresh token');
+        const { access_token } = await refreshTokens(rt);
+        if (!access_token) throw new Error('Failed to refresh');
+        // Retry original request with new Authorization header
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+        return client(originalRequest);
+      } catch (e) {
+        // Cleanup on refresh failure
+        clearTokens();
+      }
     }
     return Promise.reject(error);
   }

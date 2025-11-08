@@ -20,6 +20,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { motion } from 'framer-motion';
 import { login } from '../api/auth';
+import { getAccessToken } from '../auth/token';
 import { gradients } from '../theme/theme';
 
 const MotionPaper = motion(Paper);
@@ -37,11 +38,30 @@ const LoginPage = () => {
         setError('');
         setLoading(true);
         try {
-            const { access_token } = await login(email, password);
-            localStorage.setItem('token', access_token);
-            navigate('/dashboard', { replace: true });
+            await login(email, password); // token stored centrally
+            const token = getAccessToken();
+            if (token) {
+                navigate('/dashboard', { replace: true });
+            } else {
+                setError('Login succeeded but token missing. Please retry.');
+            }
         } catch (err) {
-            setError('Invalid email or password. Please try again.');
+            const status = err.response?.status;
+            const payload = err.response?.data;
+            console.error('Login failed', status, payload);
+            if (status === 401) {
+                setError('Incorrect email or password.');
+            } else if (status === 429) {
+                setError('Too many attempts. Please wait a minute and try again.');
+            } else if (status === 404) {
+                setError('Account not found.');
+            } else if (status === 422) {
+                setError('Invalid request format (validation error).');
+            } else if (!status) {
+                setError('Network error. Check server availability.');
+            } else {
+                setError('Unable to sign in. Please try again.');
+            }
         } finally {
             setLoading(false);
         }

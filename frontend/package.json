@@ -26,13 +26,30 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          "selector": "Literal[value=/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/]",
+          "message": "Use design tokens (colors.*) instead of hardcoded hex colors."
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^8.3.4",
+    "@storybook/addon-interactions": "^8.3.4",
+    "@storybook/react-webpack5": "^8.3.4",
+    "storybook": "^8.3.4"
   },
   "browserslist": {
     "production": [

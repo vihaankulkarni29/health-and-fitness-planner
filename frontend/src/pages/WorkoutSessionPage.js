@@ -68,9 +68,7 @@ const WorkoutSessionPage = () => {
             <AppLayout>
                 <Container maxWidth="lg">
                     {loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-                            <CircularProgress />
-                        </Box>
+                        <Spinner center label="Loading session..." />
                     ) : error ? (
                         <Alert severity="error">{error}</Alert>
                     ) : (

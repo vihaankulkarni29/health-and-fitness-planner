@@ -14,8 +14,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Box,
-  Typography
+  Box
 } from '@mui/material';
 import { colors, radii, typography } from '../../theme/tokens';
 import EmptyState from './EmptyState';

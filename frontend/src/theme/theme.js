@@ -471,4 +471,6 @@ export const gradients = {
   subtle: 'linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)',
 };
 
-export default { lightTheme, darkTheme, animations, gradients };
+// Avoid anonymous default export for better stack traces and tooling
+const themeBundle = { lightTheme, darkTheme, animations, gradients };
+export default themeBundle;

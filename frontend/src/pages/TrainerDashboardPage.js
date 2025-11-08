@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -23,6 +23,7 @@ import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
 import Spinner from '../components/ui/Spinner';
+import Skeleton from '../components/ui/Skeleton';
 
 const TrainerDashboardPage = () => {
   const navigate = useNavigate();
@@ -33,6 +34,8 @@ const TrainerDashboardPage = () => {
   const [filteredClients, setFilteredClients] = useState([]);
   const [stats, setStats] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchDebounceRef = useRef(null);
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -58,22 +61,26 @@ const TrainerDashboardPage = () => {
     }
   };
 
-  const handleSearch = (event) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
-    
-    if (!query) {
-      setFilteredClients(clients);
-    } else {
-      const filtered = clients.filter(
-        client =>
+  // Debounced search handler (300ms) for scalability and reduced renders
+  const handleSearchChange = (event) => {
+    const raw = event.target.value;
+    setSearchInput(raw);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      const query = raw.toLowerCase();
+      setSearchQuery(query);
+      if (!query) {
+        setFilteredClients(clients);
+      } else {
+        const filtered = clients.filter(client => (
           client.first_name.toLowerCase().includes(query) ||
           client.last_name.toLowerCase().includes(query) ||
           client.email.toLowerCase().includes(query) ||
           client.program_name.toLowerCase().includes(query)
-      );
-      setFilteredClients(filtered);
-    }
+        ));
+        setFilteredClients(filtered);
+      }
+    }, 300);
   };
 
   const getInitials = (firstName, lastName) => {
@@ -105,7 +112,7 @@ const TrainerDashboardPage = () => {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         {/* Summary Cards */}
-        {stats && (
+        {stats ? (
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
               <Card>
@@ -113,7 +120,7 @@ const TrainerDashboardPage = () => {
                   <PeopleIcon sx={{ mr: 1, color: '#D84315' }} />
                   <Typography variant="body2" color="text.secondary">Total Clients</Typography>
                 </Box>
-                <Typography variant="h4">{stats.total_clients}</Typography>
+                {loading ? <Skeleton height="32px" width="60%" /> : <Typography variant="h4">{stats.total_clients}</Typography>}
                 <Typography variant="caption" color="text.secondary">All trainees</Typography>
               </Card>
             </Grid>
@@ -126,7 +133,7 @@ const TrainerDashboardPage = () => {
                     Active Clients
                   </Typography>
                 </Box>
-                <Typography variant="h4">{stats.active_clients}</Typography>
+                {loading ? <Skeleton height="32px" width="50%" /> : <Typography variant="h4">{stats.active_clients}</Typography>}
                 <Typography variant="caption" color="text.secondary">
                   Last 7 days
                 </Typography>
@@ -141,7 +148,7 @@ const TrainerDashboardPage = () => {
                     Programs
                   </Typography>
                 </Box>
-                <Typography variant="h4">{stats.total_programs}</Typography>
+                {loading ? <Skeleton height="32px" width="50%" /> : <Typography variant="h4">{stats.total_programs}</Typography>}
                 <Typography variant="caption" color="text.secondary">
                   Created by you
                 </Typography>
@@ -154,10 +161,22 @@ const TrainerDashboardPage = () => {
                   <TrendingUpIcon sx={{ mr: 1, color: '#D84315' }} />
                   <Typography variant="body2" color="text.secondary">Avg Adherence</Typography>
                 </Box>
-                <Typography variant="h4">{stats.average_adherence_rate}%</Typography>
+                {loading ? <Skeleton height="32px" width="70%" /> : <Typography variant="h4">{stats.average_adherence_rate}%</Typography>}
                 <Typography variant="caption" color="text.secondary">Last 30 days</Typography>
               </Card>
             </Grid>
+          </Grid>
+        ) : (
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {[1,2,3,4].map(i => (
+              <Grid item xs={12} sm={6} md={3} key={i}>
+                <Card>
+                  <Skeleton height="20px" width="40%" sx={{ mb: 1 }} />
+                  <Skeleton height="32px" width="70%" sx={{ mb: 0.5 }} />
+                  <Skeleton height="16px" width="50%" />
+                </Card>
+              </Grid>
+            ))}
           </Grid>
         )}
 
@@ -169,8 +188,8 @@ const TrainerDashboardPage = () => {
             </Typography>
             <Input
               placeholder="Search clients..."
-              value={searchQuery}
-              onChange={handleSearch}
+              value={searchInput}
+              onChange={handleSearchChange}
               sx={{ width: 300 }}
               InputProps={{
                 startAdornment: (
@@ -182,6 +201,20 @@ const TrainerDashboardPage = () => {
             />
           </Box>
 
+          {loading ? (
+            <Box sx={{ px: 2, pb: 4 }}>
+              {[...Array(6)].map((_, idx) => (
+                <Box key={idx} sx={{ display:'flex', alignItems:'center', mb:2 }}>
+                  <Skeleton height="40px" width="40px" variant="circle" sx={{ mr:2 }} />
+                  <Box sx={{ flex:1 }}>
+                    <Skeleton height="16px" width="30%" sx={{ mb:1 }} />
+                    <Skeleton height="14px" width="50%" />
+                  </Box>
+                  <Skeleton height="24px" width="12%" sx={{ ml:2 }} />
+                </Box>
+              ))}
+            </Box>
+          ) : (
           <Table
             columns={[
               {
@@ -286,6 +319,7 @@ const TrainerDashboardPage = () => {
             emptyMessage={searchQuery ? 'No clients match your search.' : 'No clients assigned yet.'}
             emptyDescription={searchQuery ? 'Try adjusting your search terms.' : 'Start by assigning programs to trainees.'}
           />
+          )}
         </Card>
       </Container>
     </AppLayout>

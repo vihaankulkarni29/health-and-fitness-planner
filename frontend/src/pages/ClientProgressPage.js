@@ -9,7 +9,7 @@ import {
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// Removed unused ArrowBackIcon (was imported but not rendered)
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -31,6 +31,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
+import Table from '../components/ui/Table';
 
 const ClientProgressPage = () => {
   const { clientId } = useParams();
@@ -80,9 +81,48 @@ const ClientProgressPage = () => {
       case 'planned':
         return 'info';
       default:
-        return 'default';
+        return 'neutral';
     }
   };
+
+  // Table column configuration for recent sessions
+  const sessionColumns = [
+    {
+      id: 'date',
+      label: 'Date',
+      field: 'session_date',
+      render: (row) => new Date(row.session_date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    },
+    {
+      id: 'status',
+      label: 'Status',
+      field: 'status',
+      render: (row) => (
+        <Badge
+          label={row.status}
+          size="sm"
+          color={getStatusColor(row.status)}
+          variant="filled"
+        />
+      )
+    },
+    {
+      id: 'exercises',
+      label: 'Exercises',
+      field: 'exercise_count',
+      align: 'right',
+      render: (row) => (
+        <Typography variant="body2" fontWeight={600}>
+          {row.exercise_count}
+        </Typography>
+      )
+    }
+  ];
 
   if (loading) {
     return (
@@ -191,11 +231,11 @@ const ClientProgressPage = () => {
         </Grid>
 
         {/* Workout Frequency Chart */}
-  <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Workout Frequency
-            </Typography>
+        <Card sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ px: 2, pt: 2 }}>
+            Workout Frequency
+          </Typography>
+          <Box sx={{ px: 2, pb: 2 }}>
             {workout_frequency && workout_frequency.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={workout_frequency}>
@@ -216,15 +256,15 @@ const ClientProgressPage = () => {
             ) : (
               <Alert severity="info">No workout data available for the selected time range.</Alert>
             )}
-          </CardContent>
+          </Box>
         </Card>
 
         {/* Volume Trend Chart */}
-  <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Training Volume Trend
-            </Typography>
+        <Card sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ px: 2, pt: 2 }}>
+            Training Volume Trend
+          </Typography>
+          <Box sx={{ px: 2, pb: 2 }}>
             {volume_trend && volume_trend.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={volume_trend}>
@@ -252,57 +292,25 @@ const ClientProgressPage = () => {
             ) : (
               <Alert severity="info">No volume data available for the selected time range.</Alert>
             )}
-          </CardContent>
+          </Box>
         </Card>
 
         {/* Recent Sessions Table */}
-  <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Recent Sessions
-            </Typography>
+        <Card>
+          <Typography variant="h6" gutterBottom sx={{ px: 2, pt: 2 }}>
+            Recent Sessions
+          </Typography>
+          <Box sx={{ px: 2, pb: 2 }}>
             {recent_sessions && recent_sessions.length > 0 ? (
-              <TableContainer component={Paper} variant="outlined">
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell align="right">Exercises</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recent_sessions.map((session, index) => (
-                      <TableRow key={index} hover>
-                        <TableCell>
-                          {new Date(session.session_date).toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={session.status}
-                            size="small"
-                            color={getStatusColor(session.status)}
-                          />
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="body2" fontWeight={600}>
-                            {session.exercise_count}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Table
+                columns={sessionColumns}
+                data={recent_sessions}
+                emptyMessage="No recent sessions found."
+              />
             ) : (
               <Alert severity="info">No recent sessions found.</Alert>
             )}
-          </CardContent>
+          </Box>
         </Card>
       </Container>
     </AppLayout>
