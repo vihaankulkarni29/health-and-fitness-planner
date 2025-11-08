@@ -5,26 +5,10 @@ import {
   Typography,
   Box,
   Grid,
-  Card,
-  CardContent,
-  CircularProgress,
   Alert,
   ToggleButton,
-  ToggleButtonGroup,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  AppBar,
-  Toolbar,
-  IconButton,
-  useMediaQuery
+  ToggleButtonGroup
 } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -42,29 +26,15 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { getClientProgress } from '../api/trainerDashboard';
-
-const buildTheme = (mode) =>
-  createTheme({
-    palette: {
-      mode,
-      primary: { main: '#FF6A13' },
-      secondary: { main: '#00897B' },
-    },
-    shape: { borderRadius: 12 },
-    typography: {
-      h4: { fontWeight: 800 },
-      h5: { fontWeight: 700 },
-      h6: { fontWeight: 700 },
-      button: { textTransform: 'none' },
-    },
-  });
+import AppLayout from '../components/AppLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import Spinner from '../components/ui/Spinner';
 
 const ClientProgressPage = () => {
   const { clientId } = useParams();
   const navigate = useNavigate();
-  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
-  const [mode] = useState(prefersDark ? 'dark' : 'light');
-  const theme = React.useMemo(() => buildTheme(mode), [mode]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -116,55 +86,47 @@ const ClientProgressPage = () => {
 
   if (loading) {
     return (
-      <ThemeProvider theme={theme}>
-        <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-          <CircularProgress />
-        </Container>
-      </ThemeProvider>
+      <AppLayout>
+        <Spinner center label="Loading client progress..." />
+      </AppLayout>
     );
   }
 
   if (error || !progressData) {
     return (
-      <ThemeProvider theme={theme}>
-        <AppBar position="static" color="default" elevation={1}>
-          <Toolbar>
-            <IconButton edge="start" onClick={() => navigate('/trainer-dashboard')} aria-label="Back">
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography variant="h5" sx={{ flexGrow: 1, ml: 2, fontWeight: 800 }}>
-              Client Progress
-            </Typography>
-          </Toolbar>
-        </AppBar>
+      <AppLayout>
         <Container sx={{ mt: 4 }}>
+          <Box sx={{ mb: 2 }}>
+            <Button variant="ghost" onClick={() => navigate('/trainer-dashboard')}>
+              ← Back
+            </Button>
+          </Box>
+          <Typography variant="h1" sx={{ mb: 2 }}>Client Progress</Typography>
           <Alert severity="error">{error || 'Failed to load client progress.'}</Alert>
         </Container>
-      </ThemeProvider>
+      </AppLayout>
     );
   }
 
   const { client, summary, workout_frequency, volume_trend, recent_sessions } = progressData;
 
   return (
-    <ThemeProvider theme={theme}>
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
-          <IconButton edge="start" onClick={() => navigate('/trainer-dashboard')} aria-label="Back to roster">
-            <ArrowBackIcon />
-          </IconButton>
-          <Box sx={{ flexGrow: 1, ml: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>
-              {client.first_name} {client.last_name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {client.email} • Program: {client.program_name}
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
+    <AppLayout>
+      <Container maxWidth="lg" sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
+          <Button variant="ghost" onClick={() => navigate('/trainer-dashboard')}>
+            ← Back to Roster
+          </Button>
+        </Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h1">
+            {client.first_name} {client.last_name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {client.email} • Program: {client.program_name}
+          </Typography>
+        </Box>
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* Time Range Selector */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <ToggleButtonGroup
@@ -183,59 +145,53 @@ const ClientProgressPage = () => {
         {/* Summary Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={4}>
-            <Card elevation={3}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <FitnessCenterIcon color="primary" sx={{ mr: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Total Workouts
-                  </Typography>
-                </Box>
-                <Typography variant="h4">{summary.total_workouts}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Last {timeRange} days
+            <Card>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <FitnessCenterIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Total Workouts
                 </Typography>
-              </CardContent>
+              </Box>
+              <Typography variant="h4">{summary.total_workouts}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Last {timeRange} days
+              </Typography>
             </Card>
           </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
-            <Card elevation={3}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <TrendingUpIcon color="secondary" sx={{ mr: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Total Volume
-                  </Typography>
-                </Box>
-                <Typography variant="h4">{summary.total_volume_kg.toLocaleString()}</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  kg lifted
+            <Card>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <TrendingUpIcon color="secondary" sx={{ mr: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Total Volume
                 </Typography>
-              </CardContent>
+              </Box>
+              <Typography variant="h4">{summary.total_volume_kg.toLocaleString()}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                kg lifted
+              </Typography>
             </Card>
           </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
-            <Card elevation={3}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <CalendarTodayIcon sx={{ mr: 1, color: '#00897B' }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Timeframe
-                  </Typography>
-                </Box>
-                <Typography variant="h6">{summary.start_date && summary.end_date
+            <Card>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <CalendarTodayIcon sx={{ mr: 1, color: '#00897B' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Timeframe
+                </Typography>
+              </Box>
+              <Typography variant="h6">{summary.start_date && summary.end_date
                   ? `${new Date(summary.start_date).toLocaleDateString()} - ${new Date(summary.end_date).toLocaleDateString()}`
                   : 'N/A'
                 }</Typography>
-              </CardContent>
             </Card>
           </Grid>
         </Grid>
 
         {/* Workout Frequency Chart */}
-        <Card elevation={3} sx={{ mb: 3 }}>
+  <Card sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Workout Frequency
@@ -264,7 +220,7 @@ const ClientProgressPage = () => {
         </Card>
 
         {/* Volume Trend Chart */}
-        <Card elevation={3} sx={{ mb: 3 }}>
+  <Card sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Training Volume Trend
@@ -300,7 +256,7 @@ const ClientProgressPage = () => {
         </Card>
 
         {/* Recent Sessions Table */}
-        <Card elevation={3}>
+  <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Recent Sessions
@@ -349,7 +305,7 @@ const ClientProgressPage = () => {
           </CardContent>
         </Card>
       </Container>
-    </ThemeProvider>
+    </AppLayout>
   );
 };
 

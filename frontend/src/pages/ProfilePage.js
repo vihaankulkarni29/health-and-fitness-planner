@@ -3,21 +3,21 @@ import {
   Container,
   Typography,
   Box,
-  Button,
-  Card,
-  CardContent,
-  TextField,
   Grid,
   Alert,
-  CircularProgress,
   Divider,
-  Avatar,
   Stack,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import SaveIcon from '@mui/icons-material/Save';
 import { me } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
+import AppLayout from '../components/AppLayout';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Card from '../components/ui/Card';
+import Avatar from '../components/ui/Avatar';
+import Spinner from '../components/ui/Spinner';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -66,28 +66,26 @@ const ProfilePage = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [firstName, lastName, email]);
+  }, []);
 
   if (loading) {
     return (
-      <Container maxWidth="md">
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <AppLayout>
+        <Spinner center label="Loading profile..." />
+      </AppLayout>
     );
   }
 
   return (
-    <Container maxWidth="md">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Button variant="text" onClick={() => navigate('/dashboard')}>
+    <AppLayout>
+      <Container maxWidth="md">
+        <Box sx={{ mb: 2 }}>
+          <Button variant="ghost" onClick={() => navigate('/dashboard')}>
             ← Back to Dashboard
           </Button>
         </Box>
 
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant="h1" component="h1" gutterBottom>
           My Profile
         </Typography>
 
@@ -98,27 +96,30 @@ const ProfilePage = () => {
           {/* Profile Info Card */}
           <Grid item xs={12}>
             <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <Avatar sx={{ width: 80, height: 80, mr: 2, bgcolor: 'primary.main' }}>
-                    <PersonIcon sx={{ fontSize: 50 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h5">
-                      {user?.first_name} {user?.last_name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {user?.email}
-                    </Typography>
-                  </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <Avatar
+                  size="lg"
+                  color="orange"
+                  sx={{ mr: 2 }}
+                >
+                  <PersonIcon sx={{ fontSize: 32 }} />
+                </Avatar>
+                <Box>
+                  <Typography variant="h5">
+                    {user?.first_name} {user?.last_name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {user?.email}
+                  </Typography>
                 </Box>
+              </Box>
 
                 <Divider sx={{ my: 2 }} />
 
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <TextField
+                      <Input
                         fullWidth
                         label="First Name"
                         value={firstName}
@@ -127,7 +128,7 @@ const ProfilePage = () => {
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <TextField
+                      <Input
                         fullWidth
                         label="Last Name"
                         value={lastName}
@@ -136,7 +137,7 @@ const ProfilePage = () => {
                       />
                     </Grid>
                     <Grid item xs={12}>
-                      <TextField
+                      <Input
                         fullWidth
                         label="Email"
                         type="email"
@@ -148,7 +149,7 @@ const ProfilePage = () => {
                     <Grid item xs={12}>
                       <Button
                         type="submit"
-                        variant="contained"
+                        variant="primary"
                         startIcon={<SaveIcon />}
                         disabled={submitting}
                       >
@@ -157,18 +158,16 @@ const ProfilePage = () => {
                     </Grid>
                   </Grid>
                 </form>
-              </CardContent>
             </Card>
           </Grid>
 
           {/* Stats Card */}
           <Grid item xs={12}>
             <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Account Information
-                </Typography>
-                <Stack spacing={1}>
+              <Typography variant="h6" gutterBottom>
+                Account Information
+              </Typography>
+              <Stack spacing={1}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="body2" color="text.secondary">
                       Member ID:
@@ -197,30 +196,27 @@ const ProfilePage = () => {
                       </Typography>
                     </Box>
                   )}
-                </Stack>
-              </CardContent>
+              </Stack>
             </Card>
           </Grid>
 
           {/* Password Change Card */}
           <Grid item xs={12}>
             <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Change Password
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Password change functionality coming soon.
-                </Typography>
-                <Button variant="outlined" disabled>
-                  Change Password
-                </Button>
-              </CardContent>
+              <Typography variant="h6" gutterBottom>
+                Change Password
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Password change functionality coming soon.
+              </Typography>
+              <Button variant="secondary" disabled>
+                Change Password
+              </Button>
             </Card>
           </Grid>
         </Grid>
-      </Box>
-    </Container>
+      </Container>
+    </AppLayout>
   );
 };
 

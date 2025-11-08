@@ -51,8 +51,6 @@ const AppLayout = ({ children, user, toggleTheme, mode }) => {
     const theme = useMuiTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    const isTrainer = user?.role === 'TRAINER';
-
     const menuItems = [
         {
             text: 'Dashboard',

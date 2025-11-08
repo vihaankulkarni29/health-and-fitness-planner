@@ -17,13 +17,9 @@ import {
   Paper,
   Chip,
   ToggleButton,
-  ToggleButtonGroup,
-  useMediaQuery,
-  AppBar,
-  Toolbar,
-  IconButton
+  ToggleButtonGroup
 } from '@mui/material';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import {
   LineChart,
   Line,
@@ -43,8 +39,8 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+import AppLayout from '../components/AppLayout';
+import useCurrentUser from '../hooks/useCurrentUser';
 import {
   getExerciseFrequency,
   getTopExercises,
@@ -55,27 +51,7 @@ import {
 
 const COLORS = ['#FF6A13', '#00897B', '#FF8A65', '#4DB6AC', '#FFAB91', '#26A69A'];
 
-const buildTheme = (mode) =>
-  createTheme({
-    palette: {
-      mode,
-      primary: { main: '#FF6A13' },
-      secondary: { main: '#00897B' },
-    },
-    shape: { borderRadius: 12 },
-    typography: {
-      h4: { fontWeight: 800 },
-      h5: { fontWeight: 700 },
-      h6: { fontWeight: 700 },
-      button: { textTransform: 'none' },
-    },
-  });
-
-const AnalyticsPage = () => {
-  const navigate = useNavigate();
-  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
-  const [mode] = useState(prefersDark ? 'dark' : 'light');
-  const theme = React.useMemo(() => buildTheme(mode), [mode]);
+const AnalyticsPage = ({ toggleTheme, mode }) => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -122,29 +98,18 @@ const AnalyticsPage = () => {
     }
   };
 
-  if (loading) {
+  const { user, loading: userLoading } = useCurrentUser();
+
+  if (loading || userLoading) {
     return (
-      <ThemeProvider theme={theme}>
-        <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-          <CircularProgress />
-        </Container>
-      </ThemeProvider>
+      <Container sx={{ mt: 8, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Container>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
-          <IconButton edge="start" onClick={() => navigate('/dashboard')} aria-label="Back to dashboard">
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h5" sx={{ flexGrow: 1, ml: 2, fontWeight: 800 }}>
-            Analytics
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
+    <AppLayout user={user} mode={mode} toggleTheme={toggleTheme}>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -444,7 +409,7 @@ const AnalyticsPage = () => {
           </Card>
         )}
       </Container>
-    </ThemeProvider>
+    </AppLayout>
   );
 };
 

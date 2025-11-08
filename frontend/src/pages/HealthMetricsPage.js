@@ -3,31 +3,25 @@ import {
   Container,
   Typography,
   Box,
-  Button,
-  Card,
-  CardContent,
-  TextField,
   Grid,
   Alert,
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import {  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getMyHealthMetrics, createHealthMetric, deleteHealthMetric } from '../api/healthMetrics';
 import { me } from '../api/auth';
+import AppLayout from '../components/AppLayout';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Table from '../components/ui/Table';
+import Spinner from '../components/ui/Spinner';
 
 const HealthMetricsPage = () => {
   const [metrics, setMetrics] = useState([]);
@@ -109,29 +103,27 @@ const HealthMetricsPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <AppLayout>
+        <Spinner center label="Loading health metrics..." />
+      </AppLayout>
     );
   }
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mt: 8, mb: 4 }}>
+    <AppLayout>
+      <Container maxWidth="lg">
         <Box sx={{ mb: 2 }}>
-          <Button variant="text" onClick={() => window.history.back()}>
+          <Button variant="ghost" onClick={() => window.history.back()}>
             ← Back
           </Button>
         </Box>
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1">
+          <Typography variant="h1" component="h1">
             Health Metrics
           </Typography>
           <Button
-            variant="contained"
+            variant="primary"
             startIcon={<AddIcon />}
             onClick={handleOpen}
           >
@@ -143,20 +135,17 @@ const HealthMetricsPage = () => {
 
         {metrics.length === 0 ? (
           <Card>
-            <CardContent>
-              <Typography variant="body2" color="text.secondary">
-                No health metrics recorded yet. Click "Add Metric" to start tracking your progress!
-              </Typography>
-            </CardContent>
+            <Typography variant="body2" color="text.secondary">
+              No health metrics recorded yet. Click "Add Metric" to start tracking your progress!
+            </Typography>
           </Card>
         ) : (
           <>
             {/* Weight & Body Fat Chart */}
             <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Progress Chart
-                </Typography>
+              <Typography variant="h6" gutterBottom>
+                Progress Chart
+              </Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -169,7 +158,7 @@ const HealthMetricsPage = () => {
                       yAxisId="left"
                       type="monotone"
                       dataKey="weight"
-                      stroke="#8884d8"
+                      stroke="#D84315"
                       name="Weight (kg)"
                       connectNulls
                     />
@@ -177,66 +166,75 @@ const HealthMetricsPage = () => {
                       yAxisId="right"
                       type="monotone"
                       dataKey="bodyFat"
-                      stroke="#82ca9d"
+                      stroke="#43A047"
                       name="Body Fat (%)"
                       connectNulls
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              </CardContent>
             </Card>
 
             {/* Metrics Table */}
             <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Measurement History
-                </Typography>
-                <TableContainer component={Paper} variant="outlined">
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell align="right">Weight (kg)</TableCell>
-                        <TableCell align="right">Weight (lbs)</TableCell>
-                        <TableCell align="right">Height (cm)</TableCell>
-                        <TableCell align="right">Body Fat (%)</TableCell>
-                        <TableCell align="right">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {metrics.map((metric) => (
-                        <TableRow key={metric.id}>
-                          <TableCell>
-                            {new Date(metric.recorded_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell align="right">
-                            {metric.weight_kg ? metric.weight_kg.toFixed(1) : '-'}
-                          </TableCell>
-                          <TableCell align="right">
-                            {metric.weight_kg ? (metric.weight_kg * 2.20462).toFixed(1) : '-'}
-                          </TableCell>
-                          <TableCell align="right">
-                            {metric.height_cm ? metric.height_cm.toFixed(1) : '-'}
-                          </TableCell>
-                          <TableCell align="right">
-                            {metric.body_fat_percentage ? metric.body_fat_percentage.toFixed(1) : '-'}
-                          </TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleDelete(metric.id)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </CardContent>
+              <Typography variant="h6" gutterBottom>
+                Measurement History
+              </Typography>
+              <Table
+                columns={[
+                  {
+                    id: 'date',
+                    label: 'Date',
+                    field: 'recorded_at',
+                    render: (row) => new Date(row.recorded_at).toLocaleDateString(),
+                  },
+                  {
+                    id: 'weight_kg',
+                    label: 'Weight (kg)',
+                    field: 'weight_kg',
+                    align: 'right',
+                    render: (row) => row.weight_kg ? row.weight_kg.toFixed(1) : '-',
+                  },
+                  {
+                    id: 'weight_lbs',
+                    label: 'Weight (lbs)',
+                    field: 'weight_lbs',
+                    align: 'right',
+                    render: (row) => row.weight_kg ? (row.weight_kg * 2.20462).toFixed(1) : '-',
+                  },
+                  {
+                    id: 'height',
+                    label: 'Height (cm)',
+                    field: 'height_cm',
+                    align: 'right',
+                    render: (row) => row.height_cm ? row.height_cm.toFixed(1) : '-',
+                  },
+                  {
+                    id: 'body_fat',
+                    label: 'Body Fat (%)',
+                    field: 'body_fat_percentage',
+                    align: 'right',
+                    render: (row) => row.body_fat_percentage ? row.body_fat_percentage.toFixed(1) : '-',
+                  },
+                  {
+                    id: 'actions',
+                    label: 'Actions',
+                    field: 'actions',
+                    align: 'right',
+                    render: (row) => (
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDelete(row.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    ),
+                  },
+                ]}
+                data={metrics}
+                emptyMessage="No health metrics recorded"
+                emptyDescription="Start tracking by adding your first metric above"
+              />
             </Card>
           </>
         )}
@@ -248,7 +246,7 @@ const HealthMetricsPage = () => {
             <DialogContent>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <TextField
+                  <Input
                     fullWidth
                     label="Weight (kg)"
                     type="number"
@@ -258,7 +256,7 @@ const HealthMetricsPage = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
+                  <Input
                     fullWidth
                     label="Height (cm)"
                     type="number"
@@ -268,7 +266,7 @@ const HealthMetricsPage = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
+                  <Input
                     fullWidth
                     label="Body Fat Percentage"
                     type="number"
@@ -280,10 +278,10 @@ const HealthMetricsPage = () => {
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
+              <Button variant="ghost" onClick={handleClose}>Cancel</Button>
               <Button
                 type="submit"
-                variant="contained"
+                variant="primary"
                 disabled={submitting || (!weightKg && !heightCm && !bodyFat)}
               >
                 {submitting ? 'Adding...' : 'Add Metric'}
@@ -291,8 +289,8 @@ const HealthMetricsPage = () => {
             </DialogActions>
           </form>
         </Dialog>
-      </Box>
-    </Container>
+      </Container>
+    </AppLayout>
   );
 };
 
