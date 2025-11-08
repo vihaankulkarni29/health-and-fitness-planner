@@ -13,6 +13,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.13.1",
+    "axios-mock-adapter": "^2.1.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.553.0",
     "react": "^19.2.0",
@@ -26,6 +27,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -46,6 +49,7 @@
     }
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@storybook/addon-essentials": "^8.3.4",
     "@storybook/addon-interactions": "^8.3.4",
     "@storybook/react-webpack5": "^8.3.4",

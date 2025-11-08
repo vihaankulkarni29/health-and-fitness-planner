@@ -58,7 +58,7 @@ const LoginPage = () => {
             } else if (status === 422) {
                 setError('Invalid request format (validation error).');
             } else if (!status) {
-                setError('Network error. Check server availability.');
+                setError('Network error. Is the backend server running on http://localhost:8000? See docs/LOGIN_TROUBLESHOOTING.md');
             } else {
                 setError('Unable to sign in. Please try again.');
             }
