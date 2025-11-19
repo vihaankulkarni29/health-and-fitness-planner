@@ -6,8 +6,8 @@ class ProgramExercise(Base):
     __tablename__ = 'program_exercises'
 
     id = Column(Integer, primary_key=True, index=True)
-    program_id = Column(Integer, ForeignKey("programs.id"))
-    exercise_id = Column(Integer, ForeignKey("exercises.id"))
+    program_id = Column(Integer, ForeignKey("programs.id"), index=True)
+    exercise_id = Column(Integer, ForeignKey("exercises.id"), index=True)
     order = Column(Integer, nullable=False)
     prescribed_sets = Column(Integer)
     prescribed_reps = Column(Integer)

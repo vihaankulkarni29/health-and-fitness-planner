@@ -5,27 +5,26 @@ import {
     Box,
     CircularProgress,
     Alert,
-    Divider,
     Button,
     Grid,
     Snackbar,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
+    useTheme,
+    Fade
 } from '@mui/material';
 import { me } from '../api/auth';
 import ProgramCard from '../components/ProgramCard';
 import WorkoutHistory from '../components/WorkoutHistory';
 import { startSession, getSessions } from '../api/workouts';
 import { useNavigate } from 'react-router-dom';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import FeatureCard from '../components/dashboard/FeatureCard';
-import ProgressTracker from '../components/dashboard/ProgressTracker';
-import TrainerPanel from '../components/dashboard/TrainerPanel';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import AppLayout from '../components/AppLayout';
 import useCurrentUser from '../hooks/useCurrentUser';
+import GlassCard from '../components/GlassCard';
+import WeightChart from '../components/WeightChart';
+import StatsCard from '../components/StatsCard';
+import { gradients, spacing } from '../theme/tokens';
 
 // Helper function for greeting
 const getTimeOfDay = () => {
@@ -34,6 +33,16 @@ const getTimeOfDay = () => {
     if (hour < 18) return 'afternoon';
     return 'evening';
 };
+
+// Mock data for the chart until we connect real metrics
+const MOCK_WEIGHT_DATA = [
+    { date: 'Week 1', weight: 82.5 },
+    { date: 'Week 2', weight: 81.8 },
+    { date: 'Week 3', weight: 81.2 },
+    { date: 'Week 4', weight: 80.5 },
+    { date: 'Week 5', weight: 79.8 },
+    { date: 'Week 6', weight: 79.2 },
+];
 
 const DashboardPage = ({ toggleTheme, mode }) => {
     const [user, setUser] = useState(null);
@@ -44,6 +53,7 @@ const DashboardPage = ({ toggleTheme, mode }) => {
     const [snack, setSnack] = useState({ open: false, message: '' });
     const navigate = useNavigate();
     const { user: currentUser, loading: userLoading } = useCurrentUser();
+    const theme = useTheme();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -80,105 +90,165 @@ const DashboardPage = ({ toggleTheme, mode }) => {
 
     if (userLoading) {
         return (
-            <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-                <CircularProgress />
+            <Container maxWidth="lg" sx={{ mt: 8 }}>
+                <SkeletonLoader height={60} width="50%" sx={{ mb: 4 }} />
+                <Grid container spacing={4}>
+                    <Grid item xs={12} lg={8}>
+                        <SkeletonLoader height={200} borderRadius={16} sx={{ mb: 4 }} />
+                        <SkeletonLoader height={300} borderRadius={16} />
+                    </Grid>
+                    <Grid item xs={12} lg={4}>
+                        <SkeletonLoader height={150} borderRadius={16} sx={{ mb: 4 }} />
+                        <SkeletonLoader height={200} borderRadius={16} />
+                    </Grid>
+                </Grid>
             </Container>
         );
     }
 
     return (
         <AppLayout user={currentUser || user} mode={mode} toggleTheme={toggleTheme}>
-        <Container maxWidth="lg">
-            <Box>
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                        <CircularProgress />
-                    </Box>
-                ) : error ? (
-                    <Alert severity="error">{error}</Alert>
-                ) : (
-                    <>
-                        <Typography component="h1" variant="h1" sx={{ mb: 3 }}>
-                            Dashboard
-                        </Typography>
-                        {user?.role === 'TRAINER' && (
-                            <Box sx={{ mb: 3 }}>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<DashboardIcon />}
-                                    onClick={() => navigate('/trainer-dashboard')}
-                                >
-                                    Trainer Dashboard
-                                </Button>
-                            </Box>
-                        )}
-
-                        {/* Welcome Section */}
-                        {user && (
-                            <Box sx={{ mb: 3 }}>
-                                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                                    Good {getTimeOfDay()}, {user.full_name || user.username}!
-                                </Typography>
-                            </Box>
-                        )}
-
-                        <Divider sx={{ my: 3 }} />
-                        {/* Top Summary */}
-                        <Grid container spacing={3} sx={{ mb: 1 }}>
-                            <Grid item xs={12} md={4}>
-                                <ProgressTracker sessions={sessions} />
+            {/* Modern Gradient Background for the Dashboard Area */}
+            <Box sx={{
+                minHeight: '100vh',
+                background: mode === 'dark' ? gradients.dark : 'linear-gradient(180deg, #FFF3E0 0%, #FFFFFF 100%)',
+                pt: 4,
+                pb: 8
+            }}>
+                <Container maxWidth="xl">
+                    {loading ? (
+                        <Box sx={{ mt: 4 }}>
+                            <SkeletonLoader height={60} width="40%" sx={{ mb: 5 }} />
+                            <Grid container spacing={4}>
+                                <Grid item xs={12} lg={8}>
+                                    <SkeletonLoader height={220} borderRadius={24} sx={{ mb: 4 }} />
+                                    <SkeletonLoader height={350} borderRadius={24} />
+                                </Grid>
+                                <Grid item xs={12} lg={4}>
+                                    <SkeletonLoader height={160} borderRadius={24} sx={{ mb: 4 }} />
+                                    <SkeletonLoader height={250} borderRadius={24} />
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} md={4}>
-                                <TrainerPanel user={user} />
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <FeatureCard
-                                  icon={<CheckCircleIcon color="success" sx={{ fontSize: 28 }} aria-hidden />}
-                                  title="Stay consistent"
-                                  description="Set a weekly target and see your momentum build over time."
-                                />
-                            </Grid>
-                        </Grid>
+                        </Box>
+                    ) : error ? (
+                        <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>
+                    ) : (
+                        <Fade in={!loading} timeout={800}>
+                            <Box>
+                                {/* Header Section */}
+                                <Box sx={{ mb: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Box>
+                                        <Typography variant="h3" fontWeight="800" sx={{
+                                            background: gradients.primary,
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            mb: 1
+                                        }}>
+                                            Good {getTimeOfDay()}, {user?.first_name || 'Athlete'}
+                                        </Typography>
+                                        <Typography variant="h6" color="text.secondary" fontWeight="500">
+                                            Ready to crush your goals today?
+                                        </Typography>
+                                    </Box>
+                                    {user?.role === 'TRAINER' && (
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<DashboardIcon />}
+                                            onClick={() => navigate('/trainer-dashboard')}
+                                            sx={{ borderRadius: '50px', px: 4, py: 1.5, background: gradients.primary }}
+                                        >
+                                            Trainer Panel
+                                        </Button>
+                                    )}
+                                </Box>
 
-                        <Typography variant="h6">Your Program</Typography>
-                        {user && user.program ? (
-                          <ProgramCard program={user.program} />
-                        ) : (
-                          <Alert severity="info" sx={{ mt: 2 }}>No program assigned yet.</Alert>
-                        )}
-
-                                                <Box sx={{ mt: 2 }}>
-                                                    <Button
-                                                        variant="contained"
-                                                        disabled={!user || !user.program || starting}
-                                                        onClick={handleStartWorkout}
-                                                    >
-                                                        Start Workout
-                                                    </Button>
+                                <Grid container spacing={4}>
+                                    {/* Main Content Column */}
+                                    <Grid item xs={12} lg={8}>
+                                        {/* Active Program Card */}
+                                        <GlassCard
+                                            title="Current Program"
+                                            subtitle="Your active training plan"
+                                            sx={{ mb: 4, minHeight: 200 }}
+                                        >
+                                            {user && user.program ? (
+                                                <Box>
+                                                    <ProgramCard program={user.program} elevation={0} />
+                                                    <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+                                                        <Button
+                                                            variant="contained"
+                                                            size="large"
+                                                            startIcon={starting ? <CircularProgress size={20} color="inherit" /> : <PlayArrowIcon />}
+                                                            disabled={starting}
+                                                            onClick={handleStartWorkout}
+                                                            sx={{
+                                                                borderRadius: '12px',
+                                                                background: gradients.primary,
+                                                                flex: 1,
+                                                                py: 1.5,
+                                                                fontSize: '1.1rem'
+                                                            }}
+                                                        >
+                                                            Start Workout
+                                                        </Button>
+                                                    </Box>
                                                 </Box>
+                                            ) : (
+                                                <Alert severity="info" sx={{ borderRadius: '12px' }}>
+                                                    No program assigned yet. Ask your trainer to assign one!
+                                                </Alert>
+                                            )}
+                                        </GlassCard>
 
-                        <Divider sx={{ my: 3 }} />
-                        <Accordion defaultExpanded>
-                          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="history-content" id="history-header">
-                            <Typography variant="h6">Recent Workouts</Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            <WorkoutHistory sessions={sessions} />
-                          </AccordionDetails>
-                        </Accordion>
-                    </>
-                )}
-            </Box>
-        <Snackbar
-              open={snack.open}
-              autoHideDuration={3000}
-              onClose={() => setSnack({ open: false, message: '' })}
-              message={snack.message}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                                        {/* Weight Progress Chart */}
+                                        <GlassCard title="Weight Progress" subtitle="Last 6 weeks" delay={0.2}>
+                                            <WeightChart data={MOCK_WEIGHT_DATA} />
+                                        </GlassCard>
+                                    </Grid>
+
+                                    {/* Sidebar Column */}
+                                    <Grid item xs={12} lg={4}>
+                                        {/* Quick Stats / Motivation */}
+                                        <StatsCard
+                                            title="Weekly Workouts"
+                                            value="3/4"
+                                            trend="up"
+                                            trendLabel="On Track"
+                                            icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
+                                            delay={0.3}
+                                            color="warm"
+                                        />
+
+                                        <Box sx={{ mt: 4 }}>
+                                            {/* Recent History */}
+                                            <GlassCard title="Recent Activity" delay={0.4}>
+                                                <WorkoutHistory sessions={sessions.slice(0, 3)} compact />
+                                                <Button
+                                                    fullWidth
+                                                    sx={{ mt: 2, borderRadius: '20px' }}
+                                                    onClick={() => navigate('/history')}
+                                                >
+                                                    View All History
+                                                </Button>
+                                            </GlassCard>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box >
+                        </Fade >
+                    )}
+                </Container >
+            </Box >
+
+            <Snackbar
+                open={snack.open}
+                autoHideDuration={3000}
+                onClose={() => setSnack({ open: false, message: '' })}
+                message={snack.message}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             />
-        </Container>
-        </AppLayout>
-     );
+        </AppLayout >
+    );
 };
 
 export default DashboardPage;

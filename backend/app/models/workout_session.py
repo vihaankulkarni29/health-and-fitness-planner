@@ -6,9 +6,9 @@ class WorkoutSession(Base):
     __tablename__ = 'workout_sessions'
 
     id = Column(Integer, primary_key=True, index=True)
-    trainee_id = Column(Integer, ForeignKey("trainees.id"))
-    program_id = Column(Integer, ForeignKey("programs.id"))
-    session_date = Column(Date, nullable=False)
+    trainee_id = Column(Integer, ForeignKey("trainees.id"), index=True)
+    program_id = Column(Integer, ForeignKey("programs.id"), index=True)
+    session_date = Column(Date, nullable=False, index=True)
     status = Column(String, nullable=False)
 
     trainee = relationship("Trainee", back_populates="workout_sessions")

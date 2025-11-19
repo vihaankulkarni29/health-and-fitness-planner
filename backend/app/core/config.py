@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str = ""
     API_V1_STR: str = "/api/v1"
     # JWT settings
-    SECRET_KEY: str = "a_secret_key"
+    SECRET_KEY: str = Field(..., description="Secret key for JWT. Must be set in .env")
     # Shortened access token lifetime for improved security; rely on refresh rotation
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 15 minutes
     ALGORITHM: str = "HS256"

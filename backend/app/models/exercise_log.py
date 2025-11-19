@@ -6,8 +6,8 @@ class ExerciseLog(Base):
     __tablename__ = 'exercise_logs'
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("workout_sessions.id"))
-    exercise_id = Column(Integer, ForeignKey("exercises.id"))
+    session_id = Column(Integer, ForeignKey("workout_sessions.id"), index=True)
+    exercise_id = Column(Integer, ForeignKey("exercises.id"), index=True)
     completed_sets = Column(Integer)
     completed_reps = Column(Integer)
     completed_weight_kg = Column(Float)

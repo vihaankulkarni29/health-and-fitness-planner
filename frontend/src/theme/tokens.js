@@ -12,7 +12,7 @@ export const colors = {
   burntOrange: '#E64A19',
   warmOrange: '#FF6E40',
   lightOrange: '#FFE0B2',
-  
+
   // Neutrals: Charcoal to White
   charcoal: '#2C2C2C',
   slateGray: '#616161',
@@ -22,12 +22,36 @@ export const colors = {
   dividerGray: '#E0E0E0',
   subtleGray: '#F0F0F0',
   pureWhite: '#FFFFFF',
-  
+
   // Semantic Colors
   successGreen: '#43A047',
   warningAmber: '#FB8C00',
   infoBlue: '#1E88E5',
   errorRed: '#D32F2F',
+};
+
+// Modern Gradients
+export const gradients = {
+  primary: 'linear-gradient(135deg, #FF6E40 0%, #D84315 100%)',
+  dark: 'linear-gradient(135deg, #2C2C2C 0%, #000000 100%)',
+  glass: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+  warm: 'linear-gradient(135deg, #FF9F80 0%, #FF6E40 100%)',
+};
+
+// Glassmorphism Tokens
+export const glass = {
+  light: {
+    background: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+  },
+  dark: {
+    background: 'rgba(20, 20, 20, 0.7)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+  },
 };
 
 // Spacing Scale (4px base unit)

@@ -26,8 +26,9 @@ client.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const rt = getRefreshToken();
-        if (!rt) throw new Error('No refresh token');
-        const { access_token } = await refreshTokens(rt);
+        // We don't need to send rt in body if using cookies, but for now we send empty object or rely on cookie
+        // The backend checks cookie if body is empty/null
+        const { access_token } = await refreshTokens({}); 
         if (!access_token) throw new Error('Failed to refresh');
         // Retry original request with new Authorization header
         originalRequest.headers = originalRequest.headers || {};

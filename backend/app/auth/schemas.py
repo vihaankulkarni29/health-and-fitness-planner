@@ -13,7 +13,7 @@ class TokenPayload(BaseModel):
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: Optional[str] = None
 
 
 class TokenPair(BaseModel):

@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, Cookie, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/auth")
 @router.post("/login/access-token", response_model=schemas.TokenPair)
 @limiter.limit(RATE_LIMIT_AUTH)
 def login_access_token(
+    response: Response,
     request: Request,
     db: Session = Depends(get_db),
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -43,11 +44,22 @@ def login_access_token(
         user.id, expires_delta=access_token_expires
     )
     refresh_token = auth_token.create_refresh_token(user.id, settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        secure=True,  # Set to True in production (requires HTTPS)
+        samesite="lax",
+    )
+    
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token,
+        "refresh_token": refresh_token, # Keep for backward compatibility for now
         "token_type": "bearer",
     }
+
 
 
 @router.get("/me", response_model=TraineeSchema)
@@ -57,12 +69,20 @@ def read_users_me(current_user: TraineeModel = Depends(get_current_user)) -> Any
 
 
 @router.post("/refresh", response_model=schemas.TokenPair)
-def refresh_tokens(payload: schemas.RefreshRequest) -> Any:
+def refresh_tokens(
+    response: Response,
+    payload: schemas.RefreshRequest,
+    refresh_token: str = Cookie(None),
+) -> Any:
     """Issue new access and refresh tokens using a valid refresh token."""
     from jose import jwt, JWTError
 
+    token_to_use = payload.refresh_token or refresh_token
+    if not token_to_use:
+        raise HTTPException(status_code=400, detail="Refresh token missing")
+
     try:
-        decoded = jwt.decode(payload.refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        decoded = jwt.decode(token_to_use, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         if decoded.get("type") != "refresh":
             raise HTTPException(status_code=400, detail="Invalid token type")
         user_id = decoded.get("sub")
@@ -74,4 +94,14 @@ def refresh_tokens(payload: schemas.RefreshRequest) -> Any:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     new_access = auth_token.create_access_token(user_id, expires_delta=access_token_expires)
     new_refresh = auth_token.create_refresh_token(user_id, settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=new_refresh,
+        httponly=True,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        secure=True,
+        samesite="lax",
+    )
+    
     return {"access_token": new_access, "refresh_token": new_refresh, "token_type": "bearer"}

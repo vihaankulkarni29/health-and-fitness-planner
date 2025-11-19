@@ -336,8 +336,9 @@ const AppLayout = ({ children, user, toggleTheme, mode }) => {
                         '& .MuiDrawer-paper': {
                             width: DRAWER_WIDTH,
                             boxSizing: 'border-box',
-                            borderRight: '1px solid',
-                            borderColor: 'divider',
+                            borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(12px)',
                         },
                     }}
                     open

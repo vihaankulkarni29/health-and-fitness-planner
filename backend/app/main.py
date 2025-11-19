@@ -6,6 +6,11 @@ from slowapi.errors import RateLimitExceeded
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.core.rate_limit import limiter
+from app.core.logging import setup_logging, request_id_ctx_var
+import uuid
+from fastapi import Request
+
+setup_logging()
 
 app = FastAPI(
     title="Health & Fitness Planner API",
@@ -14,6 +19,14 @@ app = FastAPI(
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = str(uuid.uuid4())
+    request_id_ctx_var.set(request_id)
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
 
 app.add_middleware(
     CORSMiddleware,
