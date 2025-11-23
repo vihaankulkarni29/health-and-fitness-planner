@@ -6,14 +6,19 @@ from typing import Any
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
-    SQLALCHEMY_DATABASE_URI: str = ""
+    SQLALCHEMY_DATABASE_URI: str = Field(..., description="Database connection string")
     API_V1_STR: str = "/api/v1"
+    
     # JWT settings
     SECRET_KEY: str = Field(..., description="Secret key for JWT. Must be set in .env")
     # Shortened access token lifetime for improved security; rely on refresh rotation
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 15 minutes
     ALGORITHM: str = "HS256"
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7  # 7 days default
+
+    # Admin Setup
+    FIRST_SUPERUSER: str = "admin@example.com"
+    FIRST_SUPERUSER_PASSWORD: str = "admin"
 
     CORS_ORIGINS_STR: str = Field(
         default="http://localhost:3000,http://localhost:8000",
