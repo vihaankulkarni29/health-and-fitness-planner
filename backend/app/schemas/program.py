@@ -24,10 +24,13 @@ class ProgramBase(BaseModel):
             return sanitize_string(v, MAX_DESCRIPTION_LENGTH)
         return v
 
+from .program_exercise import ProgramExerciseCreate
+
 # Properties to receive on item creation
 class ProgramCreate(ProgramBase):
     name: str = Field(..., min_length=1, max_length=MAX_NAME_LENGTH)
     trainer_id: int = Field(..., ge=1, description="Trainer ID is required on creation")
+    exercises: Optional[List[ProgramExerciseCreate]] = []
 
 # Properties to receive on item update
 class ProgramUpdate(ProgramBase):

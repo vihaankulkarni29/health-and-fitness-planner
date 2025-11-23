@@ -20,9 +20,60 @@ def create_program(
     program_in: ProgramCreate,
     current_user: Trainee = Depends(require_trainer),
 ) -> Any:
-    """Create new program. Requires trainer or admin role."""
+    """Create new program with optional exercises. Requires trainer or admin role."""
+    # 1. Create the Program
     p = crud_program.create(db, obj_in=program_in)
+    
+    # 2. Create Program Exercises if provided
+    if program_in.exercises:
+        from app.models.program_exercise import ProgramExercise
+        for ex_data in program_in.exercises:
+            db_ex = ProgramExercise(
+                program_id=p.id,
+                exercise_id=ex_data.exercise_id,
+                order=ex_data.order,
+                prescribed_sets=ex_data.prescribed_sets,
+                prescribed_reps=ex_data.prescribed_reps,
+                prescribed_weight_kg=ex_data.prescribed_weight_kg,
+                prescribed_duration_minutes=getattr(ex_data, 'prescribed_duration_minutes', None) # Handle optional field safely
+            )
+            db.add(db_ex)
+        db.commit()
+        db.refresh(p)
     return p
+
+
+# Protected: requires trainer role
+@router.post("/{program_id}/assign/{trainee_id}", response_model=Any)
+def assign_program(
+    program_id: int,
+    trainee_id: int,
+    db: Session = Depends(get_db),
+    current_user: Trainee = Depends(require_trainer),
+) -> Any:
+    """
+    Assign a program to a trainee.
+    """
+    # Verify Program exists
+    program = crud_program.get(db, id=program_id)
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+    
+    # Verify Trainee exists
+    from app.crud.crud_trainee import trainee as crud_trainee
+    trainee = crud_trainee.get(db, id=trainee_id)
+    if not trainee:
+        raise HTTPException(status_code=404, detail="Trainee not found")
+        
+    # Verify Trainer owns the program (optional, but good practice)
+    # if program.trainer_id != current_user.id: ...
+
+    # Update Trainee's program_id
+    from app.schemas.trainee import TraineeUpdate
+    trainee_update = TraineeUpdate(program_id=program_id)
+    crud_trainee.update(db, db_obj=trainee, obj_in=trainee_update)
+    
+    return {"message": "Program assigned successfully", "program_id": program_id, "trainee_id": trainee_id}
 
 
 # Protected: authenticated users can view programs
