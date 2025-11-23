@@ -1,8 +1,8 @@
-"""initial_migration
+"""Initial migration with Unified User
 
-Revision ID: 0b6cd66ac5ca
+Revision ID: ca509f59d436
 Revises: 
-Create Date: 2025-11-05 20:51:50.053638
+Create Date: 2025-11-23 14:29:45.728719
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0b6cd66ac5ca'
+revision: str = 'ca509f59d436'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -38,17 +38,29 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_gyms_id'), 'gyms', ['id'], unique=False)
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(length=100), nullable=False),
+    sa.Column('hashed_password', sa.String(length=255), nullable=False),
+    sa.Column('role', sa.Enum('ADMIN', 'TRAINER', 'TRAINEE', name='userrole'), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('trainers',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(length=100), nullable=False),
     sa.Column('last_name', sa.String(length=100), nullable=False),
-    sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('gym_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.ForeignKeyConstraint(['gym_id'], ['gyms.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
     )
-    op.create_index(op.f('ix_trainers_email'), 'trainers', ['email'], unique=True)
     op.create_index(op.f('ix_trainers_id'), 'trainers', ['id'], unique=False)
     op.create_table('programs',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -72,24 +84,25 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['program_id'], ['programs.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_program_exercises_exercise_id'), 'program_exercises', ['exercise_id'], unique=False)
     op.create_index(op.f('ix_program_exercises_id'), 'program_exercises', ['id'], unique=False)
+    op.create_index(op.f('ix_program_exercises_program_id'), 'program_exercises', ['program_id'], unique=False)
     op.create_table('trainees',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(length=100), nullable=False),
     sa.Column('last_name', sa.String(length=100), nullable=False),
-    sa.Column('email', sa.String(length=100), nullable=False),
-    sa.Column('hashed_password', sa.String(length=255), nullable=False),
     sa.Column('gym_id', sa.Integer(), nullable=True),
     sa.Column('trainer_id', sa.Integer(), nullable=True),
     sa.Column('program_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.Column('role', sa.Enum('ADMIN', 'TRAINER', 'TRAINEE', name='userrole'), nullable=False),
     sa.ForeignKeyConstraint(['gym_id'], ['gyms.id'], ),
     sa.ForeignKeyConstraint(['program_id'], ['programs.id'], ),
     sa.ForeignKeyConstraint(['trainer_id'], ['trainers.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
     )
-    op.create_index(op.f('ix_trainees_email'), 'trainees', ['email'], unique=True)
     op.create_index(op.f('ix_trainees_id'), 'trainees', ['id'], unique=False)
     op.create_table('health_metrics',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -102,6 +115,8 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_health_metrics_id'), 'health_metrics', ['id'], unique=False)
+    op.create_index(op.f('ix_health_metrics_recorded_at'), 'health_metrics', ['recorded_at'], unique=False)
+    op.create_index(op.f('ix_health_metrics_trainee_id'), 'health_metrics', ['trainee_id'], unique=False)
     op.create_table('workout_sessions',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('trainee_id', sa.Integer(), nullable=True),
@@ -113,6 +128,9 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_workout_sessions_id'), 'workout_sessions', ['id'], unique=False)
+    op.create_index(op.f('ix_workout_sessions_program_id'), 'workout_sessions', ['program_id'], unique=False)
+    op.create_index(op.f('ix_workout_sessions_session_date'), 'workout_sessions', ['session_date'], unique=False)
+    op.create_index(op.f('ix_workout_sessions_trainee_id'), 'workout_sessions', ['trainee_id'], unique=False)
     op.create_table('exercise_logs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('session_id', sa.Integer(), nullable=True),
@@ -127,29 +145,41 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['session_id'], ['workout_sessions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_exercise_logs_exercise_id'), 'exercise_logs', ['exercise_id'], unique=False)
     op.create_index(op.f('ix_exercise_logs_id'), 'exercise_logs', ['id'], unique=False)
+    op.create_index(op.f('ix_exercise_logs_session_id'), 'exercise_logs', ['session_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_exercise_logs_session_id'), table_name='exercise_logs')
     op.drop_index(op.f('ix_exercise_logs_id'), table_name='exercise_logs')
+    op.drop_index(op.f('ix_exercise_logs_exercise_id'), table_name='exercise_logs')
     op.drop_table('exercise_logs')
+    op.drop_index(op.f('ix_workout_sessions_trainee_id'), table_name='workout_sessions')
+    op.drop_index(op.f('ix_workout_sessions_session_date'), table_name='workout_sessions')
+    op.drop_index(op.f('ix_workout_sessions_program_id'), table_name='workout_sessions')
     op.drop_index(op.f('ix_workout_sessions_id'), table_name='workout_sessions')
     op.drop_table('workout_sessions')
+    op.drop_index(op.f('ix_health_metrics_trainee_id'), table_name='health_metrics')
+    op.drop_index(op.f('ix_health_metrics_recorded_at'), table_name='health_metrics')
     op.drop_index(op.f('ix_health_metrics_id'), table_name='health_metrics')
     op.drop_table('health_metrics')
     op.drop_index(op.f('ix_trainees_id'), table_name='trainees')
-    op.drop_index(op.f('ix_trainees_email'), table_name='trainees')
     op.drop_table('trainees')
+    op.drop_index(op.f('ix_program_exercises_program_id'), table_name='program_exercises')
     op.drop_index(op.f('ix_program_exercises_id'), table_name='program_exercises')
+    op.drop_index(op.f('ix_program_exercises_exercise_id'), table_name='program_exercises')
     op.drop_table('program_exercises')
     op.drop_index(op.f('ix_programs_id'), table_name='programs')
     op.drop_table('programs')
     op.drop_index(op.f('ix_trainers_id'), table_name='trainers')
-    op.drop_index(op.f('ix_trainers_email'), table_name='trainers')
     op.drop_table('trainers')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_table('users')
     op.drop_index(op.f('ix_gyms_id'), table_name='gyms')
     op.drop_table('gyms')
     op.drop_index(op.f('ix_exercises_name'), table_name='exercises')

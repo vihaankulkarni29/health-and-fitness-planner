@@ -310,7 +310,8 @@ const LoginPage = () => {
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Don't have an account?{' '}
                                 <Link
-                                    href="#"
+                                    component="button"
+                                    onClick={() => navigate('/signup')}
                                     sx={{
                                         fontWeight: 600,
                                         color: 'primary.main',

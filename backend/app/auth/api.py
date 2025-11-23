@@ -12,7 +12,7 @@ from app.auth import schemas
 from app.auth import crud as auth_crud
 from app.auth import token as auth_token
 from app.auth.deps import get_current_user
-from app.models.trainee import Trainee as TraineeModel
+from app.models.user import User as UserModel
 from app.schemas.trainee import Trainee as TraineeSchema
 
 router = APIRouter(prefix="/auth")
@@ -63,9 +63,12 @@ def login_access_token(
 
 
 @router.get("/me", response_model=TraineeSchema)
-def read_users_me(current_user: TraineeModel = Depends(get_current_user)) -> Any:
+def read_users_me(current_user: UserModel = Depends(get_current_user)) -> Any:
     """Return the currently authenticated user's profile."""
-    return current_user
+    if current_user.role == "trainee" and current_user.trainee_profile:
+        return current_user.trainee_profile
+    # Fallback or handle other roles (future proofing)
+    return current_user.trainee_profile # For now, assume trainee flow
 
 
 @router.post("/refresh", response_model=schemas.TokenPair)

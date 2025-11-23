@@ -9,6 +9,7 @@ import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import WorkoutSessionPage from './pages/WorkoutSessionPage';
 import ProfilePage from './pages/ProfilePage';
@@ -19,9 +20,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { LazyAnalyticsPage, LazyHealthMetricsPage, LazyClientProgressPage } from './utils/lazyComponents';
 
 const LoadingFallback = () => (
-  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-    <CircularProgress />
-  </Box>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+    </Box>
 );
 
 function App() {
@@ -48,68 +49,69 @@ function App() {
                 <Router>
                     <Suspense fallback={<LoadingFallback />}>
                         <Routes>
-                        <Route path="/" element={<LandingPage toggleTheme={toggleTheme} mode={mode} />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <RequireAuth>
-                                    <DashboardPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/workout/:sessionId"
-                            element={
-                                <RequireAuth>
-                                    <WorkoutSessionPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/health-metrics"
-                            element={
-                                <RequireAuth>
-                                    <LazyHealthMetricsPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/profile"
-                            element={
-                                <RequireAuth>
-                                    <ProfilePage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/analytics"
-                            element={
-                                <RequireAuth>
-                                    <LazyAnalyticsPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/trainer-dashboard"
-                            element={
-                                <RequireAuth>
-                                    <TrainerDashboardPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                        <Route
-                            path="/trainer/client/:clientId"
-                            element={
-                                <RequireAuth>
-                                    <LazyClientProgressPage toggleTheme={toggleTheme} mode={mode} />
-                                </RequireAuth>
-                            }
-                        />
-                    </Routes>
+                            <Route path="/" element={<LandingPage toggleTheme={toggleTheme} mode={mode} />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/signup" element={<SignupPage />} />
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <RequireAuth>
+                                        <DashboardPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/workout/:sessionId"
+                                element={
+                                    <RequireAuth>
+                                        <WorkoutSessionPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/health-metrics"
+                                element={
+                                    <RequireAuth>
+                                        <LazyHealthMetricsPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <RequireAuth>
+                                        <ProfilePage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/analytics"
+                                element={
+                                    <RequireAuth>
+                                        <LazyAnalyticsPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/trainer-dashboard"
+                                element={
+                                    <RequireAuth>
+                                        <TrainerDashboardPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                            <Route
+                                path="/trainer/client/:clientId"
+                                element={
+                                    <RequireAuth>
+                                        <LazyClientProgressPage toggleTheme={toggleTheme} mode={mode} />
+                                    </RequireAuth>
+                                }
+                            />
+                        </Routes>
                     </Suspense>
-            </Router>
-        </ErrorBoundary>
+                </Router>
+            </ErrorBoundary>
         </ThemeProvider>
     );
 }

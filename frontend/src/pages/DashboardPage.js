@@ -24,6 +24,7 @@ import useCurrentUser from '../hooks/useCurrentUser';
 import GlassCard from '../components/GlassCard';
 import WeightChart from '../components/WeightChart';
 import StatsCard from '../components/StatsCard';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { gradients, spacing } from '../theme/tokens';
 
 // Helper function for greeting

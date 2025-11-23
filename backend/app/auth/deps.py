@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db
 from app.core.config import settings
 from app.auth.schemas import TokenPayload
-from app.models.trainee import Trainee, UserRole
+from app.models.user import User, UserRole
 
 # Explicit token URL path based on API inclusion
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -19,7 +19,7 @@ reusable_oauth2 = OAuth2PasswordBearer(
 
 def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
-) -> Trainee:
+) -> User:
     try:
         payload: dict[str, Any] = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -30,15 +30,15 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = db.query(Trainee).filter(Trainee.id == token_data.sub).first()
+    user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 
 def require_trainer(
-    current_user: Trainee = Depends(get_current_user),
-) -> Trainee:
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Dependency to require trainer role or higher (trainer or admin).
     Raises 403 Forbidden if user is not a trainer or admin.
@@ -52,8 +52,8 @@ def require_trainer(
 
 
 def require_admin(
-    current_user: Trainee = Depends(get_current_user),
-) -> Trainee:
+    current_user: User = Depends(get_current_user),
+) -> User:
     """
     Dependency to require admin role.
     Raises 403 Forbidden if user is not an admin.
