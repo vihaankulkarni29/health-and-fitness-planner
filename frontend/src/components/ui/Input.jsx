@@ -1,84 +1,23 @@
-/**
- * Input Component - Notion-Inspired
- * 
- * Clean input field with focus ring and consistent styling.
- */
+import * as React from "react"
 
-import React from 'react';
-import { TextField } from '@mui/material';
-import { colors, radii, focusRing, typography } from '../../theme/tokens';
+import { cn } from "@/lib/utils"
 
-const Input = ({ 
-  label,
-  placeholder,
-  value,
-  onChange,
-  type = 'text',
-  error = false,
-  helperText,
-  fullWidth = true,
-  disabled = false,
-  multiline = false,
-  rows = 1,
-  sx = {},
-  ...props 
-}) => {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> { }
+
+const Input = React.forwardRef(({ className, type, ...props }, ref) => {
   return (
-    <TextField
-      label={label}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
+    <input
       type={type}
-      error={error}
-      helperText={helperText}
-      fullWidth={fullWidth}
-      disabled={disabled}
-      multiline={multiline}
-      rows={rows}
-      variant="outlined"
-      sx={{
-        '& .MuiOutlinedInput-root': {
-          borderRadius: `${radii.md}px`,
-          fontSize: typography.fontSize.base,
-          backgroundColor: colors.pureWhite,
-          height: multiline ? 'auto' : '40px',
-          '& fieldset': {
-            borderColor: colors.dividerGray,
-            borderWidth: '1px',
-          },
-          '&:hover fieldset': {
-            borderColor: colors.dividerGray,
-          },
-          '&.Mui-focused fieldset': {
-            borderColor: colors.deepOrange,
-            borderWidth: '1px',
-          },
-          '&.Mui-focused': {
-            boxShadow: focusRing.style,
-          },
-        },
-        '& .MuiInputBase-input': {
-          padding: '10px 12px',
-          fontSize: typography.fontSize.base,
-          color: colors.charcoal,
-          '&::placeholder': {
-            color: colors.mediumGray,
-            opacity: 1,
-          },
-        },
-        '& .MuiInputLabel-root': {
-          fontSize: typography.fontSize.sm,
-          color: colors.slateGray,
-          '&.Mui-focused': {
-            color: colors.deepOrange,
-          },
-        },
-        ...sx,
-      }}
+      className={cn(
+        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      ref={ref}
       {...props}
     />
-  );
-};
+  )
+})
+Input.displayName = "Input"
 
-export default Input;
+export { Input }

@@ -24,18 +24,19 @@ module.exports = {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
                 primary: {
-                    DEFAULT: "#FF6B35",
-                    50: "#FFF4F0",
-                    100: "#FFE8E0",
-                    200: "#FFD1C2",
-                    300: "#FFBA9F",
-                    400: "#FF927A",
-                    500: "#FF6B35",
-                    600: "#E85A2A",
-                    700: "#C74A1F",
-                    800: "#A03A15",
-                    900: "#7A2C0C",
-                    950: "#4D1B07",
+                    DEFAULT: "#CD1C18",
+                    50: "#FFF5F5",
+                    100: "#FFE3E3",
+                    200: "#FFC7C7",
+                    300: "#FFA896",
+                    400: "#FF7A75",
+                    500: "#CD1C18",
+                    600: "#9B1313",
+                    700: "#7A0F0F",
+                    800: "#5C0B0B",
+                    900: "#38000A",
+                    950: "#1F0005",
+                    foreground: "#FFFFFF",
                 },
                 secondary: {
                     DEFAULT: "#1E293B",
@@ -50,6 +51,7 @@ module.exports = {
                     800: "#1E293B",
                     900: "#0F172A",
                     950: "#020617",
+                    foreground: "#FFFFFF",
                 },
                 accent: {
                     DEFAULT: "#3B82F6",
@@ -64,6 +66,7 @@ module.exports = {
                     800: "#1E40AF",
                     900: "#1E3A8A",
                     950: "#172554",
+                    foreground: "#FFFFFF",
                 },
                 success: {
                     DEFAULT: "#10B981",
@@ -120,6 +123,20 @@ module.exports = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                navbar: {
+                    light: {
+                        bg: "rgb(255 255 255 / 0.8)",
+                        border: "rgb(229 231 235)",
+                        text: "rgb(17 24 39)",
+                        hover: "rgb(243 244 246)"
+                    },
+                    dark: {
+                        bg: "rgb(11 12 15 / 0.8)",
+                        border: "rgb(22 24 29)",
+                        text: "rgb(255 255 255)",
+                        hover: "rgb(22 24 29)"
+                    }
+                }
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -135,11 +152,30 @@ module.exports = {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: "0" },
                 },
+                "navbar-slide-down": {
+                    "0%": { transform: "translateY(-100%)" },
+                    "100%": { transform: "translateY(0)" }
+                },
+                "navbar-dropdown": {
+                    "0%": {
+                        opacity: "0",
+                        transform: "rotateX(-12deg) scale(0.9)"
+                    },
+                    "100%": {
+                        opacity: "1",
+                        transform: "rotateX(0) scale(1)"
+                    }
+                }
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                "navbar-slide-down": "navbar-slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                "navbar-dropdown": "navbar-dropdown 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
             },
+            backdropBlur: {
+                navbar: "10px"
+            }
         },
     },
     plugins: [require("tailwindcss-animate")],
