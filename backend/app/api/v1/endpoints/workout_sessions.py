@@ -233,6 +233,73 @@ def end_workout_session(
     return session
 
 
+# Protected: requires authentication
+@router.post("/{session_id}/auto-complete", response_model=WorkoutSession)
+def auto_complete_session(
+    session_id: int,
+    *,
+    db: Session = Depends(get_db),
+    current_user: Trainee = Depends(get_current_user),
+) -> Any:
+    """
+    Automatically complete a workout session by logging all exercises from the program.
+    This is a "One-Click Complete" feature for trainer-assigned programs.
+    """
+    session = crud_workout_session.get(db, id=session_id)
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
+    
+    # Authorization
+    from app.models.trainee import UserRole
+    if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot auto-complete other users' workout sessions"
+        )
+    
+    if not session.program_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Cannot auto-complete a session without a linked program"
+        )
+
+    # Fetch program exercises
+    from app.models.program_exercise import ProgramExercise
+    program_exercises = db.query(ProgramExercise).filter(ProgramExercise.program_id == session.program_id).all()
+    
+    if not program_exercises:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Linked program has no exercises to log"
+        )
+
+    # Log each exercise
+    from app.schemas.exercise_log import ExerciseLogCreate
+    for p_ex in program_exercises:
+        # Calculate volume if possible
+        sets = p_ex.prescribed_sets or 0
+        reps = p_ex.prescribed_reps or 0
+        weight = p_ex.prescribed_weight_kg or 0.0
+        volume = sets * reps * weight
+        
+        log_in = ExerciseLogCreate(
+            session_id=session_id,
+            exercise_id=p_ex.exercise_id,
+            completed_sets=sets,
+            completed_reps=reps,
+            completed_weight_kg=weight,
+            completed_duration_minutes=p_ex.prescribed_duration_minutes,
+            volume_kg=volume,
+            is_completed=True
+        )
+        crud_exercise_log.create(db, obj_in=log_in)
+
+    # Mark session as completed
+    session_update = WorkoutSessionUpdate(status=WorkoutSessionStatus.COMPLETED)
+    session = crud_workout_session.update(db, db_obj=session, obj_in=session_update)
+    return session
+
+
 @router.get("/{session_id}", response_model=WorkoutSession)
 def read_workout_session(
     session_id: int,

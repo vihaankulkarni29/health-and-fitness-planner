@@ -12,6 +12,7 @@ class ProgramExercise(Base):
     prescribed_sets = Column(Integer)
     prescribed_reps = Column(Integer)
     prescribed_weight_kg = Column(Float)
+    prescribed_duration_minutes = Column(Integer, nullable=True)
 
     program = relationship("Program", back_populates="exercises")
     exercise = relationship("Exercise", back_populates="programs")

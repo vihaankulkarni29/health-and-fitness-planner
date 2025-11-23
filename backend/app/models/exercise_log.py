@@ -11,6 +11,7 @@ class ExerciseLog(Base):
     completed_sets = Column(Integer)
     completed_reps = Column(Integer)
     completed_weight_kg = Column(Float)
+    completed_duration_minutes = Column(Integer, nullable=True)
     volume_kg = Column(Float)
     is_completed = Column(Boolean, default=True)
     logged_at = Column(DateTime(timezone=True), server_default=func.now())
