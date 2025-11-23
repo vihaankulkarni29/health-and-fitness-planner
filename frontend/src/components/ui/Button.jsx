@@ -1,108 +1,48 @@
-/**
- * Button Component - Notion-Inspired
- * 
- * Three variants: primary (deep orange), secondary (white with border), ghost (transparent)
- * All use subtle interactions and consistent sizing.
- */
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva } from "class-variance-authority"
 
-import React from 'react';
-import { Button as MuiButton } from '@mui/material';
-import { colors, radii, motion, typography } from '../../theme/tokens';
+import { cn } from "@/lib/utils"
 
-const Button = ({ 
-  children, 
-  variant = 'primary',  // 'primary' | 'secondary' | 'ghost'
-  size = 'md',          // 'sm' | 'md' | 'lg'
-  fullWidth = false,
-  disabled = false,
-  startIcon,
-  endIcon,
-  onClick,
-  sx = {},
-  ...props 
-}) => {
-  const variantStyles = {
-    primary: {
-      backgroundColor: colors.deepOrange,
-      color: colors.pureWhite,
-      border: 'none',
-      '&:hover': {
-        backgroundColor: colors.burntOrange,
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
       },
-      '&:active': {
-        transform: 'scale(0.98)',
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
       },
     },
-    secondary: {
-      backgroundColor: colors.pureWhite,
-      color: colors.charcoal,
-      border: `1px solid ${colors.dividerGray}`,
-      '&:hover': {
-        backgroundColor: colors.lightGray,
-        borderColor: colors.dividerGray,
-      },
-      '&:active': {
-        transform: 'scale(0.98)',
-      },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
     },
-    ghost: {
-      backgroundColor: 'transparent',
-      color: colors.slateGray,
-      border: 'none',
-      '&:hover': {
-        backgroundColor: colors.lightGray,
-      },
-      '&:active': {
-        transform: 'scale(0.98)',
-      },
-    },
-  };
+  }
+)
 
-  const sizeStyles = {
-    sm: {
-      padding: '6px 16px',
-      fontSize: '13px',
-      height: '32px',
-    },
-    md: {
-      padding: '10px 20px',
-      fontSize: '14px',
-      height: '40px',
-    },
-    lg: {
-      padding: '12px 24px',
-      fontSize: '15px',
-      height: '48px',
-    },
-  };
-
+const Button = React.forwardRef(({ className, variant, size, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : "button"
   return (
-    <MuiButton
-      variant="contained"
-      disableElevation
-      startIcon={startIcon}
-      endIcon={endIcon}
-      disabled={disabled}
-      onClick={onClick}
-      fullWidth={fullWidth}
-      sx={{
-        borderRadius: `${radii.md}px`,
-        textTransform: 'none',
-        fontWeight: typography.fontWeight.medium,
-        transition: `all ${motion.duration.fast} ${motion.easing.base}`,
-        boxShadow: 'none',
-        '&:hover': {
-          boxShadow: 'none',
-        },
-        ...variantStyles[variant],
-        ...sizeStyles[size],
-        ...sx,
-      }}
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      ref={ref}
       {...props}
-    >
-      {children}
-    </MuiButton>
-  );
-};
+    />
+  )
+})
+Button.displayName = "Button"
 
-export default Button;
+export { Button, buttonVariants }

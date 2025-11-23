@@ -1,57 +1,61 @@
-/**
- * Card Component - Notion-Inspired
- * 
- * Clean white card with subtle shadow and optional hover effect.
- * Provides consistent padding and spacing.
- */
+import * as React from "react"
 
-import React from 'react';
-import { Card as MuiCard, CardContent } from '@mui/material';
-import { colors, shadows, radii, spacing as spacingTokens } from '../../theme/tokens';
+import { cn } from "@/lib/utils"
 
-const Card = ({ 
-  children, 
-  hover = false,
-  padding = 'md',  // 'sm' | 'md' | 'lg'
-  sx = {},
-  ...props 
-}) => {
-  const paddingMap = {
-    sm: `${spacingTokens.base}px`,
-    md: `${spacingTokens.lg}px`,
-    lg: `${spacingTokens.xl}px`,
-  };
+const Card = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
 
-  return (
-    <MuiCard
-      sx={{
-        backgroundColor: colors.pureWhite,
-        boxShadow: shadows.sm,
-        borderRadius: `${radii.lg}px`,
-        border: 'none',
-        transition: 'all 0.15s ease',
-        ...(hover && {
-          '&:hover': {
-            boxShadow: shadows.hover,
-            cursor: 'pointer',
-          },
-        }),
-        ...sx,
-      }}
-      {...props}
-    >
-      <CardContent
-        sx={{
-          padding: paddingMap[padding],
-          '&:last-child': {
-            paddingBottom: paddingMap[padding],
-          },
-        }}
-      >
-        {children}
-      </CardContent>
-    </MuiCard>
-  );
-};
+const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
 
-export default Card;
+const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
+  <h3
+    ref={ref}
+    className={cn(
+      "text-2xl font-semibold leading-none tracking-tight",
+      className
+    )}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
+
+const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
