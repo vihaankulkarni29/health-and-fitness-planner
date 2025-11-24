@@ -18,7 +18,7 @@ import { getMyClients, getTrainerDashboardStats } from '../api/trainerDashboard'
 import AppLayout from '../components/AppLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import Input from '../components/ui/input';
+import { Input } from '../components/ui/input';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
