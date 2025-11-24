@@ -230,25 +230,8 @@ export const Header = ({
                 {
                     icon: TrendingUpIcon,
                     text: 'History',
-                    description: 'View past workouts',
-                    to: '/workout/history',
-                },
-            ],
-        },
-        {
-            to: '/health',
-            text: 'Health',
-            icon: TrendingUpIcon,
-        },
-    ] : [
-        {
-            to: '/',
-            text: 'Home',
-            icon: HomeIcon,
-        },
-    ];
 
-    return (
+                    return(
         <>
             <header
                 className={cn(
