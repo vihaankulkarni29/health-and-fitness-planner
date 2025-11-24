@@ -19,11 +19,13 @@ import { useNavigate } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { ActivityIcon, TrendingUpIcon, TargetIcon, CalendarIcon } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
 import useCurrentUser from '../hooks/useCurrentUser';
 import GlassCard from '../components/GlassCard';
 import WeightChart from '../components/WeightChart';
 import StatsCard from '../components/StatsCard';
+import StatsSection from '../components/ui/stats-section';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { gradients, spacing } from '../theme/tokens';
 
@@ -162,6 +164,38 @@ const DashboardPage = ({ toggleTheme, mode }) => {
                                         </Button>
                                     )}
                                 </Box>
+
+                                {/* Stats Section */}
+                                <StatsSection
+                                    stats={[
+                                        {
+                                            value: sessions.length,
+                                            label: 'Total Workouts',
+                                            description: 'All time',
+                                            icon: ActivityIcon,
+                                            trend: 12
+                                        },
+                                        {
+                                            value: user?.program ? '1' : '0',
+                                            label: 'Active Programs',
+                                            description: 'Currently enrolled',
+                                            icon: TargetIcon,
+                                        },
+                                        {
+                                            value: sessions.filter(s => {
+                                                const sessionDate = new Date(s.session_date);
+                                                const weekAgo = new Date();
+                                                weekAgo.setDate(weekAgo.getDate() - 7);
+                                                return sessionDate >= weekAgo;
+                                            }).length,
+                                            label: 'This Week',
+                                            description: 'Workouts completed',
+                                            icon: CalendarIcon,
+                                            trend: 25
+                                        }
+                                    ]}
+                                    className="mb-8"
+                                />
 
                                 <Grid container spacing={4}>
                                     {/* Main Content Column */}
