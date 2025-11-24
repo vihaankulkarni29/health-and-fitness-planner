@@ -17,9 +17,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { getMyHealthMetrics, createHealthMetric, deleteHealthMetric } from '../api/healthMetrics';
 import { me } from '../api/auth';
 import AppLayout from '../components/AppLayout';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import Input from '../components/ui/input';
 import Table from '../components/ui/Table';
 import Spinner from '../components/ui/Spinner';
 

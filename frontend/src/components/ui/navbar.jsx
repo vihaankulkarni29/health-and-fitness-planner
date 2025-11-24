@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import {
     DumbbellIcon,
     HomeIcon,
@@ -230,8 +230,25 @@ export const Header = ({
                 {
                     icon: TrendingUpIcon,
                     text: 'History',
+                    description: 'View past workouts',
+                    to: '/workout/history',
+                },
+            ],
+        },
+        {
+            to: '/health',
+            text: 'Health',
+            icon: TrendingUpIcon,
+        },
+    ] : [
+        {
+            to: '/',
+            text: 'Home',
+            icon: HomeIcon,
+        },
+    ];
 
-                    return(
+    return (
         <>
             <header
                 className={cn(

@@ -27,8 +27,8 @@ import {
 } from 'recharts';
 import { getClientProgress } from '../api/trainerDashboard';
 import AppLayout from '../components/AppLayout';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import Table from '../components/ui/Table';

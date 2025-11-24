@@ -7,7 +7,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { colors, spacing as spacingTokens } from '../../theme/tokens';
-import Button from './Button';
+import { Button } from './button';
 
 const EmptyState = ({ 
   icon: Icon,

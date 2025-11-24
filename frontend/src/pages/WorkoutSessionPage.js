@@ -6,7 +6,7 @@ import { getProgramExercisesByProgram } from '../api/programs';
 import ExerciseLogForm from '../components/ExerciseLogForm';
 import ExerciseLogList from '../components/ExerciseLogList';
 import AppLayout from '../components/AppLayout';
-import Button from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import Spinner from '../components/ui/Spinner';
 
 const WorkoutSessionPage = () => {

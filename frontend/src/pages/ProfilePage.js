@@ -13,9 +13,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import { me } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import Card from '../components/ui/Card';
+import { Button } from '../components/ui/button';
+import Input from '../components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import Avatar from '../components/ui/Avatar';
 import Spinner from '../components/ui/Spinner';
 
