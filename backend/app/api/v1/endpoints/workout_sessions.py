@@ -71,7 +71,7 @@ def start_workout_session(
     ```
     """
     # Authorization: users can only create sessions for themselves
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and session_in.trainee_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -140,7 +140,7 @@ def log_exercise_in_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
     
     # Authorization: users can only log exercises in their own sessions
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -216,7 +216,7 @@ def end_workout_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
     
     # Authorization: users can only end their own sessions
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -250,7 +250,7 @@ def auto_complete_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
     
     # Authorization
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -341,7 +341,7 @@ def read_workout_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workout session not found")
     
     # Authorization: users can only view their own sessions unless they're trainer/admin
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and session.trainee_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -3,7 +3,7 @@ import { getAccessToken, getRefreshToken, clearTokens } from '../auth/token';
 import { refreshTokens } from './auth';
 
 // Use environment variable for API URL, fallback to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.0.113:8000/api/v1';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -28,7 +28,7 @@ client.interceptors.response.use(
         const rt = getRefreshToken();
         // We don't need to send rt in body if using cookies, but for now we send empty object or rely on cookie
         // The backend checks cookie if body is empty/null
-        const { access_token } = await refreshTokens({}); 
+        const { access_token } = await refreshTokens({});
         if (!access_token) throw new Error('Failed to refresh');
         // Retry original request with new Authorization header
         originalRequest.headers = originalRequest.headers || {};

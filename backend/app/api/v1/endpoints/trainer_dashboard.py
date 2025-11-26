@@ -7,7 +7,8 @@ from sqlalchemy import func, desc
 
 from app.api.deps import get_db
 from app.auth.deps import get_current_user, require_trainer
-from app.models.trainee import Trainee as TraineeModel, UserRole
+from app.models.trainee import Trainee as TraineeModel
+from app.models.user import UserRole
 from app.models.trainer import Trainer
 from app.models.workout_session import WorkoutSession
 from app.models.exercise_log import ExerciseLog

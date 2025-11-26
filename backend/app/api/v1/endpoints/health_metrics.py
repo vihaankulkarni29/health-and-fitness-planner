@@ -77,7 +77,7 @@ def read_health_metric(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="HealthMetric not found")
     
     # Authorization: users can only view their own metrics unless they're trainer/admin
-    from app.models.trainee import UserRole
+    from app.models.user import UserRole
     if current_user.role == UserRole.TRAINEE and health_metric_obj.trainee_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot access other users' health metrics")
     

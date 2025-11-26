@@ -39,7 +39,7 @@ const LoginPage = () => {
             } else if (!status) {
                 setError('Network error. Is the backend server running on http://localhost:8000?');
             } else {
-                setError('Unable to sign in. Please try again.');
+                setError(`Unable to sign in. Status: ${status}. Please try again.`);
             }
         }
     };

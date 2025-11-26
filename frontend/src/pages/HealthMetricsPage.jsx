@@ -13,7 +13,7 @@ import {
     CalendarIcon,
     TargetIcon
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '../lib/utils';
 
 // Mock data - replace with real API calls
 const MOCK_HEALTH_DATA = {

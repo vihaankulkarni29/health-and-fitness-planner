@@ -3,14 +3,22 @@ from pydantic import Field
 from typing import Any
 
 
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+import os
 
-    SQLALCHEMY_DATABASE_URI: str = Field(..., description="Database connection string")
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    SQLALCHEMY_DATABASE_URI: str = Field(
+        default_factory=lambda: os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///./fitness_tracker.db"),
+        description="Database connection string"
+    )
     API_V1_STR: str = "/api/v1"
     
     # JWT settings
-    SECRET_KEY: str = Field(..., description="Secret key for JWT. Must be set in .env")
+    SECRET_KEY: str = Field(
+        default_factory=lambda: os.getenv("SECRET_KEY", "dev-secret-key-please-change-in-production-12345678901234567890"),
+        description="Secret key for JWT. Must be set in .env"
+    )
     # Shortened access token lifetime for improved security; rely on refresh rotation
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15  # 15 minutes
     ALGORITHM: str = "HS256"
