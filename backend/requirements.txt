@@ -13,3 +13,4 @@ pytest
 httpx
 pydantic[email]
 python-multipart
+gunicorn

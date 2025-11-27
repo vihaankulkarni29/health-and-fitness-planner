@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Only mount the database file for persistence. Do NOT mount code.
+      - ./backend/fitness_tracker.db:/app/fitness_tracker.db
+    environment:
+      - SQLALCHEMY_DATABASE_URI=sqlite:///./fitness_tracker.db
+      - SECRET_KEY=${SECRET_KEY}
+      # In production, you should list the actual domain
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - RELOAD=false
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/v1
+    restart: always
