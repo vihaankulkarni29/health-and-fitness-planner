@@ -8,6 +8,15 @@ class Trainer(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     
+    @property
+    def email(self):
+        return self.user.email if self.user else None
+
+    @email.setter
+    def email(self, value):
+        if self.user:
+            self.user.email = value
+    
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     

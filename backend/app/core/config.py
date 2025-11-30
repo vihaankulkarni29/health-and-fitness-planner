@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing import Any
 
 
@@ -29,13 +29,22 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str = "admin"
 
     CORS_ORIGINS_STR: str = Field(
-        default="http://localhost:3000,http://localhost:8000",
+        default="http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000",
         description="Allowed CORS origins (comma-separated string in .env)"
     )
+
+    ENVIRONMENT: str = Field(default="local", description="Environment: local, staging, production")
 
     @property
     def CORS_ORIGINS(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS_STR.split(",")]
 
+    @model_validator(mode='after')
+    def check_secret_key_in_production(self):
+        if self.ENVIRONMENT == "production":
+            default_secret = "dev-secret-key-please-change-in-production-12345678901234567890"
+            if self.SECRET_KEY == default_secret:
+                raise ValueError("SECRET_KEY must be changed in production environment!")
+        return self
 
 settings = Settings()

@@ -26,3 +26,8 @@ class Trainee(Base):
     @property
     def email(self):
         return self.user.email if self.user else None
+
+    @email.setter
+    def email(self, value):
+        if self.user:
+            self.user.email = value

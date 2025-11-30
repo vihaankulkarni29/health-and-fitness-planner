@@ -22,7 +22,7 @@ export async function login(email, password) {
 }
 
 export async function signup(userData) {
-  const { data } = await client.post('/auth/signup', userData);
+  const { data } = await client.post('/trainees/', userData);
   return data;
 }
 

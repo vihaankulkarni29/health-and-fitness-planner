@@ -15,12 +15,27 @@ class CRUDTrainer:
         return db.query(Trainer).offset(skip).limit(limit).all()
 
     def create(self, db: Session, *, obj_in: TrainerCreate):
-        # Construct via kwargs; ignore static type checker complaints about SQLAlchemy's dynamic __init__
+        from app.models.user import User, UserRole
+        from app.auth.token import get_password_hash
+        
+        # 1. Create User
+        # Trainers created by admin get a default password
+        password = "TrainerPassword123!" 
+        db_user = User(
+            email=obj_in.email,
+            hashed_password=get_password_hash(password),
+            role=UserRole.TRAINER
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        
+        # 2. Create Trainer Profile
         db_obj = Trainer(
-            first_name=obj_in.first_name,  # type: ignore[call-arg]
-            last_name=obj_in.last_name,    # type: ignore[call-arg]
-            email=obj_in.email,            # type: ignore[call-arg]
-            gym_id=obj_in.gym_id,          # type: ignore[call-arg]
+            user_id=db_user.id,
+            first_name=obj_in.first_name,
+            last_name=obj_in.last_name,
+            gym_id=obj_in.gym_id,
         )
         db.add(db_obj)
         db.commit()

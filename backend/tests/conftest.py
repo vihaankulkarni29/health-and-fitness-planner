@@ -20,7 +20,11 @@ from app.api.deps import get_db  # noqa: E402
 from app.schemas.trainee import TraineeCreate  # noqa: E402
 from app.auth.crud import create_user  # noqa: E402
 from app.core.config import settings  # noqa: E402
-from app.models.trainee import UserRole  # noqa: E402
+from app.models.user import UserRole  # noqa: E402
+from app.core.rate_limit import limiter  # noqa: E402
+
+# Disable rate limiting for tests
+limiter.enabled = False
 
 
 @pytest.fixture(scope="session")
@@ -87,7 +91,7 @@ def auth_headers(client: TestClient, db_session) -> dict[str, str]:
     # Try to create a test user, but handle the case where it already exists
     user_in = TraineeCreate(
         email="testuser@example.com",
-        password="testpassword123",
+        password="TestPassword123!",
         first_name="Test",
         last_name="User",
     )
@@ -102,7 +106,7 @@ def auth_headers(client: TestClient, db_session) -> dict[str, str]:
     # Log in to get access token
     login_data = {
         "username": "testuser@example.com",
-        "password": "testpassword123",
+        "password": "TestPassword123!",
     }
     response = client.post(
         f"{settings.API_V1_STR}/auth/login/access-token", data=login_data
@@ -126,7 +130,7 @@ def trainee_user(db_session) -> dict:
     
     user_in = TraineeCreate(
         email=email,
-        password="trainee123",
+        password="TestPassword123!",
         first_name="Test",
         last_name="Trainee",
     )
@@ -136,7 +140,7 @@ def trainee_user(db_session) -> dict:
     db_session.commit()
     db_session.refresh(user)
     
-    return {"email": email, "password": "trainee123", "id": user.id}
+    return {"email": email, "password": "TestPassword123!", "id": user.id}
 
 
 @pytest.fixture()
@@ -149,7 +153,7 @@ def trainer_user(db_session) -> dict:
     
     user_in = TraineeCreate(
         email=email,
-        password="trainer123",
+        password="TestPassword123!",
         first_name="Test",
         last_name="Trainer",
     )
@@ -159,7 +163,7 @@ def trainer_user(db_session) -> dict:
     db_session.commit()
     db_session.refresh(user)
     
-    return {"email": email, "password": "trainer123", "id": user.id}
+    return {"email": email, "password": "TestPassword123!", "id": user.id}
 
 
 @pytest.fixture()
@@ -172,7 +176,7 @@ def admin_user(db_session) -> dict:
     
     user_in = TraineeCreate(
         email=email,
-        password="admin123",
+        password="TestPassword123!",
         first_name="Test",
         last_name="Admin",
     )
@@ -182,7 +186,7 @@ def admin_user(db_session) -> dict:
     db_session.commit()
     db_session.refresh(user)
     
-    return {"email": email, "password": "admin123", "id": user.id}
+    return {"email": email, "password": "TestPassword123!", "id": user.id}
 
 @pytest.fixture()
 def trainee_headers(client: TestClient, trainee_user: dict) -> dict[str, str]:

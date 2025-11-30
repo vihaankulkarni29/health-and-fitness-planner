@@ -33,7 +33,7 @@ def seed_users():
         print(f"Creating user: {vihaan_email}")
         vihaan = User(
             email=vihaan_email,
-            hashed_password=get_password_hash("password123"),
+            hashed_password=get_password_hash("TestPassword123!"),
             role=UserRole.TRAINEE,
             is_active=True
         )
@@ -64,7 +64,7 @@ def seed_users():
         print(f"Creating user: {rohit_email}")
         rohit = User(
             email=rohit_email,
-            hashed_password=get_password_hash("password123"),
+            hashed_password=get_password_hash("TestPassword123!"),
             role=UserRole.TRAINER,
             is_active=True
         )

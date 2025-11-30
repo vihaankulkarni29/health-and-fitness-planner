@@ -15,11 +15,8 @@ class CRUDTrainee:
         return db.query(Trainee).offset(skip).limit(limit).all()
 
     def create(self, db: Session, *, obj_in: TraineeCreate | dict):
-        """Create a Trainee from either a Pydantic model or a plain dict.
-
-        Tests sometimes pass minimal dicts (no password). In that case, use a default
-        password purely for test data to satisfy the NOT NULL constraint.
-        """
+        """Create a Trainee from either a Pydantic model or a plain dict."""
+        from app.models.user import User, UserRole
         from app.auth.token import get_password_hash
 
         if isinstance(obj_in, dict):
@@ -31,22 +28,32 @@ class CRUDTrainee:
             program_id = obj_in.get("program_id")
             password = obj_in.get("password") or "testpass123"
         else:
-            first_name = obj_in.first_name  # type: ignore[assignment]
-            last_name = obj_in.last_name    # type: ignore[assignment]
-            email = obj_in.email            # type: ignore[assignment]
-            gym_id = obj_in.gym_id          # type: ignore[assignment]
-            trainer_id = obj_in.trainer_id  # type: ignore[assignment]
-            program_id = obj_in.program_id  # type: ignore[assignment]
-            password = obj_in.password      # type: ignore[assignment]
+            first_name = obj_in.first_name
+            last_name = obj_in.last_name
+            email = obj_in.email
+            gym_id = obj_in.gym_id
+            trainer_id = obj_in.trainer_id
+            program_id = obj_in.program_id
+            password = obj_in.password
 
+        # 1. Create User
+        db_user = User(
+            email=email,
+            hashed_password=get_password_hash(password),
+            role=UserRole.TRAINEE
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+
+        # 2. Create Trainee Profile
         db_obj = Trainee(
-            first_name=first_name,   # type: ignore[call-arg]
-            last_name=last_name,     # type: ignore[call-arg]
-            email=email,             # type: ignore[call-arg]
-            gym_id=gym_id,           # type: ignore[call-arg]
-            trainer_id=trainer_id,   # type: ignore[call-arg]
-            program_id=program_id,   # type: ignore[call-arg]
-            hashed_password=get_password_hash(password),  # type: ignore[call-arg]
+            user_id=db_user.id,
+            first_name=first_name,
+            last_name=last_name,
+            gym_id=gym_id,
+            trainer_id=trainer_id,
+            program_id=program_id,
         )
         db.add(db_obj)
         db.commit()
